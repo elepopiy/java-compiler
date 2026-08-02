@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaAI STUDIO ☕ | Multi-File Java Compiler</title>
+    <title>CodeStudio ☕ | Multi-File Java Compiler</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -511,7 +511,7 @@
         <div class="brand">
             <i class="fa-solid fa-mug-hot"></i>
             <div class="brand-text">
-                <h1>JavaAI STUDIO</h1>
+                <h1>CodeStudio</h1>
                 <span>BY JAVA AI STUDIO</span>
             </div>
         </div>
@@ -566,7 +566,7 @@
                     <span id="compilerStatus" style="color: var(--accent-coffee);">Hazır ☕</span>
                 </div>
                 <div class="console-output" id="consoleOutput">
-                    <div class="console-msg info">[JavaAI STUDIO] Sistem hazır. .java dosyalarınızı yazıp "Kodu Derle" butonuna basabilirsiniz.</div>
+                    <div class="console-msg info">[CodeStudio] Sistem hazır. .java dosyalarınızı yazıp "Kodu Derle" butonuna basabilirsiniz.</div>
                 </div>
             </div>
         </div>
@@ -590,7 +590,7 @@
             {
                 id: '1',
                 name: 'Main.java',
-                content: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("JavaAI STUDIO'ya Hoş Geldiniz! ☕");\n        \n        Helper helper = new Helper();\n        helper.sayCoffee();\n    }\n}`
+                content: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("CodeStudio'ya Hoş Geldiniz! ☕");\n        \n        Helper helper = new Helper();\n        helper.sayCoffee();\n    }\n}`
             },
             {
                 id: '2',
@@ -728,7 +728,7 @@
             compilerStatus.innerText = 'Derleniyor... ☕';
             compilerStatus.style.color = 'var(--accent-coffee)';
 
-            logConsole('info', '[JavaAI STUDIO] Derleme işlemi başlatıldı...');
+            logConsole('info', '[CodeStudio] Derleme işlemi başlatıldı...');
 
             try {
                 const response = await fetch('/api/compile', {

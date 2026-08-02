@@ -1,6 +1,6 @@
 /**
  * =======================================================
- *               ☕ JavaAI STUDIO ☕
+ *               ☕ CodeStudio ☕
  *       Multi-File Java Compiler & Builder
  * =======================================================
  * Created with passion for Java lovers!
@@ -32,8 +32,8 @@ console.log(`
   ( )  (    ) )
   _____________
  |             |___
- |  JavaAI     |   |  ☕ JavaAI STUDIO Compiler
- |   STUDIO    |___|  🚀 Engine Powered & Ready!
+ |  CodeStudio     |   |  ☕ CodeStudio Compiler
+ |             |___|  🚀 Engine Powered & Ready!
  |_____________|
 `);
 
@@ -54,7 +54,7 @@ app.post('/api/compile', (req, res) => {
     if (!files || !Array.isArray(files) || files.length === 0) {
         return res.status(400).json({
             success: false,
-            provider: 'JavaAI STUDIO',
+            provider: 'CodeStudio',
             error: 'Lütfen en az bir adet .java dosyası gönderin ☕'
         });
     }
@@ -75,7 +75,7 @@ app.post('/api/compile', (req, res) => {
                 fs.rmSync(sessionDir, { recursive: true, force: true });
                 return res.status(400).json({
                     success: false,
-                    provider: 'JavaAI STUDIO',
+                    provider: 'CodeStudio',
                     error: `Geçersiz dosya uzantısı: ${safeFileName}. Sadece .java kabul edilir!`
                 });
             }
@@ -92,7 +92,7 @@ app.post('/api/compile', (req, res) => {
                 fs.rmSync(sessionDir, { recursive: true, force: true });
                 return res.status(400).json({
                     success: false,
-                    provider: 'JavaAI STUDIO',
+                    provider: 'CodeStudio',
                     status: 'COMPILATION_FAILED',
                     error: stderr || error.message || 'Bilinmeyen bir Java derleme hatası oluştu.'
                 });
@@ -108,7 +108,7 @@ app.post('/api/compile', (req, res) => {
 
             return res.json({
                 success: true,
-                provider: 'JavaAI STUDIO',
+                provider: 'CodeStudio',
                 message: '☕ Kahveniz tazeleşti, Java kodlarınız başarıyla derlendi!',
                 sessionId: sessionId,
                 compiledFiles: compiledFiles
@@ -121,7 +121,7 @@ app.post('/api/compile', (req, res) => {
         }
         return res.status(500).json({
             success: false,
-            provider: 'JavaAI STUDIO',
+            provider: 'CodeStudio',
             error: 'Sunucu içi bir hata oluştu: ' + err.message
         });
     }
@@ -141,7 +141,7 @@ app.get('/api/download/:sessionId/:fileName', (req, res) => {
     const filePath = path.join(TEMP_DIR, safeSessionId, safeFileName);
 
     if (fs.existsSync(filePath) && safeFileName.endsWith('.class')) {
-        res.setHeader('X-Powered-By', 'JavaAI STUDIO');
+        res.setHeader('X-Powered-By', 'CodeStudio');
         res.download(filePath, safeFileName, (err) => {
             if (err) {
                 console.error('İndirme hatası:', err);
@@ -150,7 +150,7 @@ app.get('/api/download/:sessionId/:fileName', (req, res) => {
     } else {
         res.status(404).json({
             success: false,
-            provider: 'JavaAI STUDIO',
+            provider: 'CodeStudio',
             error: 'Derlenmiş .class dosyası bulunamadı veya süresi doldu.'
         });
     }
@@ -170,12 +170,12 @@ setInterval(() => {
         // 15 dakikayı geçmişse sil (15 * 60 * 1000 ms)
         if (now - stats.mtimeMs > 15 * 60 * 1000) {
             fs.rmSync(sessionPath, { recursive: true, force: true });
-            console.log(`[JavaAI STUDIO] Eski oturum temizlendi: ${session}`);
+            console.log(`[CodeStudio] Eski oturum temizlendi: ${session}`);
         }
     });
 }, 5 * 60 * 1000); // 5 dakikada bir kontrol et
 
 // Sunucuyu Başlat
 app.listen(PORT, () => {
-    console.log(`[JavaAI STUDIO] Sunucu http://localhost:${PORT} üzerinde aktif! ☕`);
+    console.log(`[CodeStudio] Sunucu http://localhost:${PORT} üzerinde aktif! ☕`);
 });
