@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaAI STUDIO ☕ | Multi-File Java Compiler</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #120c09;
+            --panel-bg: #1c1410;
+            --sidebar-bg: #160f0c;
+            --editor-bg: #18110e;
+            --card-bg: #251b15;
+            
+            --accent-coffee: #d49b54;
+            --accent-coffee-hover: #e5ad67;
+            --accent-warm: #c86d3b;
+            
+            --text-primary: #f3e9e3;
+            --text-secondary: #b3a296;
+            --text-muted: #736256;
+            
+            --border-color: #33241c;
+            --border-active: #54392a;
+            
+            --status-success: #4ea863;
+            --status-error: #d9534f;
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --font-code: 'Fira Code', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        header {
+            height: 60px;
+            background-color: var(--sidebar-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 10;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand i.fa-mug-hot {
+            font-size: 24px;
+            color: var(--accent-coffee);
+            filter: drop-shadow(0 0 8px rgba(212, 155, 84, 0.4));
+        }
+
+        .brand-text h1 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #f3e9e3 0%, var(--accent-coffee) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-text span {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .btn-compile {
+            background: linear-gradient(135deg, var(--accent-coffee) 0%, var(--accent-warm) 100%);
+            color: #fff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-main);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(212, 155, 84, 0.25);
+        }
+
+        .btn-compile:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(212, 155, 84, 0.35);
+            background: linear-gradient(135deg, var(--accent-coffee-hover) 0%, var(--accent-warm) 100%);
+        }
+
+        .btn-compile:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* MAIN APP LAYOUT */
+        .app-container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+        }
+
+        /* LEFT SIDEBAR */
+        .sidebar {
+            width: 320px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        .sidebar-section {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-header {
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-coffee);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: rgba(212, 155, 84, 0.03);
+        }
+
+        .btn-add-file {
+            background: transparent;
+            border: 1px dashed var(--accent-coffee);
+            color: var(--accent-coffee);
+            width: 26px;
+            height: 26px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-add-file:hover {
+            background: rgba(212, 155, 84, 0.15);
+            border-style: solid;
+        }
+
+        .source-files-list {
+            padding: 8px 12px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .source-file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: var(--font-code);
+            font-size: 13px;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .source-file-item.active {
+            border-color: var(--accent-coffee);
+            background-color: rgba(212, 155, 84, 0.1);
+            color: var(--accent-coffee);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-delete-file {
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 2px 4px;
+        }
+
+        .btn-delete-file:hover {
+            color: var(--status-error);
+        }
+
+        /* COMPILED DOWNLOADS SECTION */
+        .compiled-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .compiled-list {
+            padding: 12px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .compiled-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .compiled-item:hover {
+            border-color: var(--accent-coffee);
+        }
+
+        .compiled-item-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .compiled-item-info i {
+            color: var(--status-success);
+            font-size: 18px;
+        }
+
+        .compiled-name {
+            font-family: var(--font-code);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .compiled-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .btn-download {
+            background-color: rgba(78, 168, 99, 0.15);
+            color: var(--status-success);
+            border: 1px solid rgba(78, 168, 99, 0.3);
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-download:hover {
+            background-color: var(--status-success);
+            color: #fff;
+        }
+
+        .empty-downloads {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-muted);
+            gap: 12px;
+        }
+
+        .empty-downloads i {
+            font-size: 36px;
+            opacity: 0.4;
+        }
+
+        /* RIGHT EDITOR AREA */
+        .main-editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--editor-bg);
+            overflow: hidden;
+        }
+
+        .editor-tabs {
+            height: 42px;
+            background-color: var(--sidebar-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        .tab-item {
+            height: 100%;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-right: 1px solid var(--border-color);
+            font-family: var(--font-code);
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .tab-item.active {
+            background-color: var(--editor-bg);
+            color: var(--accent-coffee);
+            font-weight: 500;
+        }
+
+        .tab-item.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--accent-coffee);
+        }
+
+        .editor-wrapper {
+            flex: 1;
+            position: relative;
+            display: flex;
+        }
+
+        .line-numbers {
+            width: 48px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-right: 1px solid var(--border-color);
+            padding: 16px 0;
+            font-family: var(--font-code);
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: right;
+            padding-right: 12px;
+            line-height: 1.6;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .code-textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-family: var(--font-code);
+            font-size: 13px;
+            line-height: 1.6;
+            padding: 16px;
+            resize: none;
+            white-space: pre;
+            tab-size: 4;
+        }
+
+        /* CONSOLE PANEL */
+        .console-panel {
+            height: 200px;
+            background-color: #0d0806;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .console-header {
+            height: 36px;
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .console-output {
+            flex: 1;
+            padding: 12px 16px;
+            font-family: var(--font-code);
+            font-size: 12px;
+            line-height: 1.5;
+            overflow-y: auto;
+            color: #d1c7bd;
+        }
+
+        .console-msg.success { color: var(--status-success); }
+        .console-msg.error { color: var(--status-error); }
+        .console-msg.info { color: var(--accent-coffee); }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            width: 360px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal input {
+            background: var(--editor-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-family: var(--font-code);
+            outline: none;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .btn-modal {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-cancel { background: transparent; color: var(--text-secondary); }
+        .btn-confirm { background: var(--accent-coffee); color: #fff; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="brand">
+            <i class="fa-solid fa-mug-hot"></i>
+            <div class="brand-text">
+                <h1>JavaAI STUDIO</h1>
+                <span>BY JAVA AI STUDIO</span>
+            </div>
+        </div>
+        <button class="btn-compile" id="compileBtn">
+            <i class="fa-solid fa-play"></i>
+            <span>Kodu Derle</span>
+        </button>
+    </header>
+
+    <!-- APP CONTAINER -->
+    <div class="app-container">
+        
+        <!-- LEFT SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-header">
+                    <span><i class="fa-solid fa-folder-tree" style="margin-right: 6px;"></i> Java Dosyaları</span>
+                    <button class="btn-add-file" id="addFileBtn" title="Yeni .java Dosyası Ekle">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+                <div class="source-files-list" id="sourceFilesList"></div>
+            </div>
+
+            <!-- DERLENMİŞ DOSYALAR BÖLÜMÜ -->
+            <div class="compiled-section">
+                <div class="sidebar-header">
+                    <span><i class="fa-solid fa-cube" style="margin-right: 6px;"></i> Derlenmiş (.class) Dosyalar</span>
+                </div>
+                <div class="compiled-list" id="compiledList">
+                    <div class="empty-downloads">
+                        <i class="fa-solid fa-mug-saucer"></i>
+                        <p>Henüz derlenmiş dosya yok.<br>Kodu derlediğinde <b>.class</b> dosyaların burada belirecek.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN EDITOR AREA -->
+        <div class="main-editor-area">
+            <div class="editor-tabs" id="editorTabs"></div>
+
+            <div class="editor-wrapper">
+                <div class="line-numbers" id="lineNumbers">1</div>
+                <textarea class="code-textarea" id="codeEditor" spellcheck="false" placeholder="// Java kodlarınızı buraya yazın..."></textarea>
+            </div>
+
+            <!-- CONSOLE OUTPUT -->
+            <div class="console-panel">
+                <div class="console-header">
+                    <span><i class="fa-solid fa-terminal" style="margin-right: 6px;"></i> Derleme Çıktısı & Konsol</span>
+                    <span id="compilerStatus" style="color: var(--accent-coffee);">Hazır ☕</span>
+                </div>
+                <div class="console-output" id="consoleOutput">
+                    <div class="console-msg info">[JavaAI STUDIO] Sistem hazır. .java dosyalarınızı yazıp "Kodu Derle" butonuna basabilirsiniz.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW FILE MODAL -->
+    <div class="modal-overlay" id="newFileModal">
+        <div class="modal">
+            <h3 style="color: var(--text-primary); font-size: 16px;">Yeni Java Dosyası Ekle</h3>
+            <input type="text" id="newFileNameInput" placeholder="Örn: Helper (Sadece Sınıf Adı)">
+            <div class="modal-actions">
+                <button class="btn-modal btn-cancel" id="cancelModalBtn">İptal</button>
+                <button class="btn-modal btn-confirm" id="confirmModalBtn">Ekle</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default State
+        let files = [
+            {
+                id: '1',
+                name: 'Main.java',
+                content: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("JavaAI STUDIO'ya Hoş Geldiniz! ☕");\n        \n        Helper helper = new Helper();\n        helper.sayCoffee();\n    }\n}`
+            },
+            {
+                id: '2',
+                name: 'Helper.java',
+                content: `public class Helper {\n    public void sayCoffee() {\n        System.out.println("Taze derlenmiş kahve kokulu Java kodları!");\n    }\n}`
+            }
+        ];
+
+        let activeFileId = '1';
+
+        // DOM Elements
+        const sourceFilesList = document.getElementById('sourceFilesList');
+        const editorTabs = document.getElementById('editorTabs');
+        const codeEditor = document.getElementById('codeEditor');
+        const lineNumbers = document.getElementById('lineNumbers');
+        const compileBtn = document.getElementById('compileBtn');
+        const compiledList = document.getElementById('compiledList');
+        const consoleOutput = document.getElementById('consoleOutput');
+        const compilerStatus = document.getElementById('compilerStatus');
+        
+        const addFileBtn = document.getElementById('addFileBtn');
+        const newFileModal = document.getElementById('newFileModal');
+        const newFileNameInput = document.getElementById('newFileNameInput');
+        const cancelModalBtn = document.getElementById('cancelModalBtn');
+        const confirmModalBtn = document.getElementById('confirmModalBtn');
+
+        function init() {
+            renderSidebarFiles();
+            renderTabs();
+            loadActiveFileContent();
+            updateLineNumbers();
+            setupEventListeners();
+        }
+
+        function renderSidebarFiles() {
+            sourceFilesList.innerHTML = '';
+            files.forEach(file => {
+                const item = document.createElement('div');
+                item.className = `source-file-item ${file.id === activeFileId ? 'active' : ''}`;
+                item.onclick = () => switchActiveFile(file.id);
+
+                item.innerHTML = `
+                    <div class="file-info">
+                        <i class="fa-regular fa-file-code" style="color: var(--accent-coffee);"></i>
+                        <span>${file.name}</span>
+                    </div>
+                    ${files.length > 1 ? `<button class="btn-delete-file" onclick="deleteFile(event, '${file.id}')"><i class="fa-solid fa-xmark"></i></button>` : ''}
+                `;
+                sourceFilesList.appendChild(item);
+            });
+        }
+
+        function renderTabs() {
+            editorTabs.innerHTML = '';
+            files.forEach(file => {
+                const tab = document.createElement('div');
+                tab.className = `tab-item ${file.id === activeFileId ? 'active' : ''}`;
+                tab.onclick = () => switchActiveFile(file.id);
+
+                tab.innerHTML = `
+                    <i class="fa-solid fa-mug-hot" style="font-size: 11px;"></i>
+                    <span>${file.name}</span>
+                    ${files.length > 1 ? `<i class="fa-solid fa-xmark btn-delete-file" style="margin-left:6px;" onclick="deleteFile(event, '${file.id}')"></i>` : ''}
+                `;
+                editorTabs.appendChild(tab);
+            });
+        }
+
+        function switchActiveFile(id) {
+            saveCurrentEditorContent();
+            activeFileId = id;
+            renderSidebarFiles();
+            renderTabs();
+            loadActiveFileContent();
+            updateLineNumbers();
+        }
+
+        function saveCurrentEditorContent() {
+            const currentFile = files.find(f => f.id === activeFileId);
+            if (currentFile) currentFile.content = codeEditor.value;
+        }
+
+        function loadActiveFileContent() {
+            const currentFile = files.find(f => f.id === activeFileId);
+            if (currentFile) codeEditor.value = currentFile.content;
+        }
+
+        function updateLineNumbers() {
+            const lines = codeEditor.value.split('\n').length;
+            let numbersHtml = '';
+            for (let i = 1; i <= lines; i++) numbersHtml += i + '<br>';
+            lineNumbers.innerHTML = numbersHtml;
+        }
+
+        function addNewFile(fileName) {
+            let cleanName = fileName.trim();
+            if (!cleanName) return;
+            cleanName = cleanName.replace('.java', '');
+            cleanName = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+            const fullFileName = cleanName + '.java';
+
+            if (files.some(f => f.name.toLowerCase() === fullFileName.toLowerCase())) {
+                alert('Bu isimde bir Java dosyası zaten var!');
+                return;
+            }
+
+            const newFile = {
+                id: Date.now().toString(),
+                name: fullFileName,
+                content: `public class ${cleanName} {\n\n}`
+            };
+
+            files.push(newFile);
+            switchActiveFile(newFile.id);
+            closeModal();
+        }
+
+        function deleteFile(event, id) {
+            event.stopPropagation();
+            if (files.length <= 1) return;
+
+            files = files.filter(f => f.id !== id);
+            if (activeFileId === id) activeFileId = files[0].id;
+            renderSidebarFiles();
+            renderTabs();
+            loadActiveFileContent();
+            updateLineNumbers();
+        }
+
+        async function compileCode() {
+            saveCurrentEditorContent();
+
+            compileBtn.disabled = true;
+            compileBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Derleniyor...</span>`;
+            compilerStatus.innerText = 'Derleniyor... ☕';
+            compilerStatus.style.color = 'var(--accent-coffee)';
+
+            logConsole('info', '[JavaAI STUDIO] Derleme işlemi başlatıldı...');
+
+            try {
+                const response = await fetch('/api/compile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        files: files.map(f => ({ fileName: f.name, content: f.content }))
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    logConsole('success', `[BAŞARILI] ${data.message}`);
+                    renderCompiledFiles(data.compiledFiles);
+                    compilerStatus.innerText = 'Derleme Başarılı! ✅';
+                    compilerStatus.style.color = 'var(--status-success)';
+                } else {
+                    logConsole('error', `[DERLEME HATASI]\n${data.error}`);
+                    compilerStatus.innerText = 'Derleme Hatası! ❌';
+                    compilerStatus.style.color = 'var(--status-error)';
+                }
+
+            } catch (err) {
+                logConsole('error', `[BAĞLANTI HATASI] ${err.message}`);
+                compilerStatus.innerText = 'Bağlantı Hatası!';
+                compilerStatus.style.color = 'var(--status-error)';
+            } finally {
+                compileBtn.disabled = false;
+                compileBtn.innerHTML = `<i class="fa-solid fa-play"></i> <span>Kodu Derle</span>`;
+            }
+        }
+
+        function renderCompiledFiles(compiledFiles) {
+            if (!compiledFiles || compiledFiles.length === 0) return;
+
+            compiledList.innerHTML = '';
+            compiledFiles.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'compiled-item';
+                card.innerHTML = `
+                    <div class="compiled-item-info">
+                        <i class="fa-solid fa-file-zipper"></i>
+                        <div>
+                            <div class="compiled-name">${item.className}</div>
+                            <div class="compiled-sub">Java Bytecode</div>
+                        </div>
+                    </div>
+                    <a href="${item.downloadUrl}" class="btn-download" download>
+                        <i class="fa-solid fa-download"></i> İndir
+                    </a>
+                `;
+                compiledList.appendChild(card);
+            });
+        }
+
+        function logConsole(type, message) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `console-msg ${type}`;
+            msgDiv.innerText = message;
+            consoleOutput.appendChild(msgDiv);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        function openModal() {
+            newFileModal.classList.add('active');
+            newFileNameInput.value = '';
+            newFileNameInput.focus();
+        }
+
+        function closeModal() { newFileModal.classList.remove('active'); }
+
+        function setupEventListeners() {
+            codeEditor.addEventListener('input', () => {
+                updateLineNumbers();
+                saveCurrentEditorContent();
+            });
+
+            codeEditor.addEventListener('scroll', () => {
+                lineNumbers.scrollTop = codeEditor.scrollTop;
+            });
+
+            codeEditor.addEventListener('keydown', (e) => {
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const start = codeEditor.selectionStart;
+                    const end = codeEditor.selectionEnd;
+                    codeEditor.value = codeEditor.value.substring(0, start) + "    " + codeEditor.value.substring(end);
+                    codeEditor.selectionStart = codeEditor.selectionEnd = start + 4;
+                    updateLineNumbers();
+                    saveCurrentEditorContent();
+                }
+            });
+
+            compileBtn.addEventListener('click', compileCode);
+            addFileBtn.addEventListener('click', openModal);
+            cancelModalBtn.addEventListener('click', closeModal);
+            confirmModalBtn.addEventListener('click', () => addNewFile(newFileNameInput.value));
+            newFileNameInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') addNewFile(newFileNameInput.value);
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>

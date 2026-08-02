@@ -1,0 +1,12 @@
+{
+  "name": "javaai-studio-compiler",
+  "version": "1.0.0",
+  "description": "Multi-file Java Compiler Web Service by JavaAI STUDIO",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
