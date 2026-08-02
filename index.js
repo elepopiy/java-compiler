@@ -1,10 +1,13 @@
 /**
  * =======================================================
  *               ☕ CodeStudio ☕
- *       Multi-File Java Compiler & Builder
+ *         Multi-File Java Compiler & Builder
  * =======================================================
  * Created with passion for Java lovers!
  */
+
+// 🚀 Self-Ping Mekanizmasını Başlat (Render'ın uykuya geçmesini engeller)
+require('./ping.js');
 
 const express = require('express');
 const fs = require('fs');
