@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
 # Java Compiler (javac) ve Java Runtime'ı (java) yüklüyoruz
-RUN apk add --no-gradable --no-cache openjdk17-jdk
+RUN apk add --no-cache openjdk17-jdk
 
 WORKDIR /app
 
