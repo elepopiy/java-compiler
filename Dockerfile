@@ -1,33 +1,20 @@
-# 1. Aşama: Build (Derleme)
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-# Bağımlılıkları yükle
-COPY package*.json ./
-RUN npm ci
-
-# Kaynak kodları kopyala ve projeyi derle
-COPY . .
-RUN npm run build
-
-# 2. Aşama: Runner (Üretim Çalıştırma Ortamı)
-FROM node:20-alpine AS runner
+FROM node:20-alpine
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Sadece üretim bağımlılıklarını yükle
+# Bağımlılıkları kopyala ve yükle
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
-# Derleme çıktısını derleme aşamasından kopyala
-COPY --from=builder /app/dist ./dist
+# Tüm proje dosyalarını kopyala
+COPY . .
 
-# Güvenlik için non-root kullanıcıya geç
+# Güvenlik için non-root kullanıcı
 USER node
 
 EXPOSE 3000
 
-CMD ["node", "dist/index.js"]
+# Ana dosyan hangisiyse (örn: index.js veya app.js veya src/index.js)
+CMD ["node", "index.js"]
