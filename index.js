@@ -6,6 +6,9 @@
  * Created with passion for Java, C and C++ lovers!
  */
 
+// 🚀 Self-Ping Mekanizmasını Başlat (Render'ın uykuya geçmesini engeller)
+require('./ping.js');
+
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -25,50 +28,69 @@ if (!fs.existsSync(TEMP_DIR)) {
     fs.mkdirSync(TEMP_DIR, { recursive: true });
 }
 
+// Konsol Kahve Logu
+console.log(`
+  (  )   (   )  )
+   ) (   )  (  (
+  ( )  (    ) )
+  _____________
+ |             |___
+ |  CodeStudio     |   |  ☕ CodeStudio Compiler
+ |             |___|  🚀 Java · C · C++ Engine Ready!
+ |_____________|
+`);
+
 /**
  * =======================================================
  * DİL YAPILANDIRMASI
+ * Her dil için: kabul edilen uzantı, derleme komutu ve
+ * çalıştırma komutunu üreten fonksiyonlar burada tanımlı.
  * =======================================================
  */
 const LANG_CONFIG = {
     java: {
         ext: '.java',
         provider: 'CodeStudio · Java',
+        // javac tüm .java dosyalarını sessionDir içinde derler
         buildCommand: () => 'javac *.java',
+        // Derlenen .class dosyalarını tara
         collectOutputs: (sessionDir) =>
             fs.readdirSync(sessionDir)
                 .filter((f) => f.endsWith('.class'))
                 .map((className) => ({ className, type: 'class' })),
+        // Çalıştırılabilir ana sınıfı, "public static void main" içeren dosyadan bul
         resolveEntryPoint: (files) => {
             const mainFile = files.find((f) => /public\s+static\s+void\s+main\s*\(/.test(f.content || ''));
             if (!mainFile) return null;
             const classMatch = (mainFile.content || '').match(/public\s+class\s+([A-Za-z_$][A-Za-z0-9_$]*)/);
             return classMatch ? classMatch[1] : mainFile.fileName.replace('.java', '');
         },
-        runnableOnServer: true,
         runCommand: (entryPoint) => `java ${entryPoint}`,
+        runnableOnServer: true,
     },
+    // C ve C++ dosyaları, kullanıcı indirip kendi Windows bilgisayarında
+    // çalıştırabilsin diye MinGW-w64 ile Windows .exe olarak ÇAPRAZ DERLENİR.
+    // Sunucu Linux (Alpine) olduğu için normal "gcc"/"g++" yalnızca Linux'ta
+    // çalışan ELF binary üretir — bu yüzden burada x86_64-w64-mingw32-*
+    // araç zinciri kullanılıyor (bkz. Dockerfile: mingw-w64-gcc paketi).
+    // -static* bayrakları sayesinde çıktı .exe, hedef makinede MinGW DLL'i
+    // olmadan da doğrudan çalışabiliyor.
     c: {
         ext: '.c',
-        provider: 'CodeStudio · C (Windows .exe)',
-        // mingw-w64 ile CROSS-COMPILE: sunucu Linux olsa da gerçek bir
-        // Windows PE32+ .exe üretir (eskiden gcc ile Linux ELF üretiliyordu,
-        // bu da Windows'ta çalıştırılamıyordu). -static ile mingw runtime
-        // DLL'lerine ihtiyaç kalmadan tek başına çalışan bir .exe çıkar.
-        buildCommand: () => 'x86_64-w64-mingw32-gcc -Wall -O2 -static -o app.exe *.c',
+        provider: 'CodeStudio · C',
+        buildCommand: () => 'x86_64-w64-mingw32-gcc -Wall -O2 -static -static-libgcc -o app.exe *.c',
         collectOutputs: () => [{ className: 'app.exe', type: 'binary' }],
         resolveEntryPoint: (files) => (files.some((f) => /int\s+main\s*\(/.test(f.content || '')) ? 'app.exe' : null),
-        runnableOnServer: false, // Windows .exe, Linux sunucuda çalıştırılamaz
-        runCommand: () => null,
+        // .exe Windows formatındadır; Linux sunucu üzerinde doğrudan çalıştırılamaz.
+        runnableOnServer: false,
     },
     cpp: {
         ext: '.cpp',
-        provider: 'CodeStudio · C++ (Windows .exe)',
-        buildCommand: () => 'x86_64-w64-mingw32-g++ -std=c++17 -Wall -O2 -static -o app.exe *.cpp',
+        provider: 'CodeStudio · C++',
+        buildCommand: () => 'x86_64-w64-mingw32-g++ -std=c++17 -Wall -O2 -static -static-libgcc -static-libstdc++ -o app.exe *.cpp',
         collectOutputs: () => [{ className: 'app.exe', type: 'binary' }],
         resolveEntryPoint: (files) => (files.some((f) => /int\s+main\s*\(/.test(f.content || '')) ? 'app.exe' : null),
         runnableOnServer: false,
-        runCommand: () => null,
     },
 };
 
@@ -76,6 +98,16 @@ function resolveLang(language) {
     return LANG_CONFIG[language] || null;
 }
 
+/**
+ * API: /api/compile
+ * POST Body:
+ * {
+ *   language: "java" | "c" | "cpp",
+ *   files: [
+ *     { fileName: "Main.java", content: "public class Main { ... }" }
+ *   ]
+ * }
+ */
 app.post('/api/compile', (req, res) => {
     const { files, language } = req.body;
 
@@ -102,6 +134,7 @@ app.post('/api/compile', (req, res) => {
     try {
         fs.mkdirSync(sessionDir, { recursive: true });
 
+        // 1. Tüm kaynak dosyaları diske yaz
         for (const file of files) {
             const safeFileName = path.basename(file.fileName || '');
 
@@ -118,6 +151,7 @@ app.post('/api/compile', (req, res) => {
             fs.writeFileSync(filePath, file.content || '', 'utf8');
         }
 
+        // 2. Dile özgü derleyiciyi çalıştır (javac / gcc / g++)
         const buildCmd = lang.buildCommand();
         exec(buildCmd, { cwd: sessionDir, timeout: 20000 }, (error, stdout, stderr) => {
             if (error) {
@@ -130,6 +164,7 @@ app.post('/api/compile', (req, res) => {
                 });
             }
 
+            // 3. Derleme başarılı! Çıktıları topla
             const compiledFiles = lang
                 .collectOutputs(sessionDir)
                 .map((f) => ({
@@ -138,8 +173,6 @@ app.post('/api/compile', (req, res) => {
                 }));
 
             const entryPoint = lang.resolveEntryPoint(files);
-            const hasEntryPoint = Boolean(entryPoint);
-            const runnableOnServer = lang.runnableOnServer !== false;
 
             return res.json({
                 success: true,
@@ -148,11 +181,8 @@ app.post('/api/compile', (req, res) => {
                 sessionId,
                 language,
                 entryPoint,
-                hasEntryPoint,
-                runnableOnServer,
-                // canRun = sunucu tarafında gerçekten çalıştırılabilir mi
-                // (Java evet; C/C++ artık Windows .exe olduğu için hayır)
-                canRun: hasEntryPoint && runnableOnServer,
+                canRun: Boolean(entryPoint) && Boolean(lang.runnableOnServer),
+                downloadOnly: Boolean(entryPoint) && !lang.runnableOnServer,
                 compiledFiles,
             });
         });
@@ -168,6 +198,14 @@ app.post('/api/compile', (req, res) => {
     }
 });
 
+/**
+ * API: /api/run
+ * POST Body: { sessionId, language, entryPoint }
+ * Derlenmiş projeyi (javac ile .class, ya da gcc/g++ ile üretilen "app"
+ * binary'sini) daha önce oluşturulan session klasöründe çalıştırır ve
+ * konsol çıktısını (stdout/stderr) döner. Sadece /api/compile ile
+ * oluşturulmuş geçerli bir sessionId kabul edilir.
+ */
 app.post('/api/run', (req, res) => {
     const { sessionId, language, entryPoint } = req.body;
 
@@ -179,18 +217,18 @@ app.post('/api/run', (req, res) => {
         return res.status(400).json({ success: false, error: 'sessionId ve entryPoint zorunludur.' });
     }
 
+    if (!lang.runnableOnServer) {
+        return res.status(400).json({
+            success: false,
+            error: `${lang.provider} çıktısı Windows .exe formatındadır ve bu sunucuda (Linux) çalıştırılamaz. Dosyayı indirip kendi bilgisayarınızda çalıştırabilirsiniz.`,
+        });
+    }
+
     const safeSessionId = path.basename(sessionId);
     const sessionDir = path.join(TEMP_DIR, safeSessionId);
 
     if (!fs.existsSync(sessionDir)) {
         return res.status(404).json({ success: false, error: 'Oturum bulunamadı veya süresi doldu. Lütfen tekrar derleyin.' });
-    }
-
-    if (lang.runnableOnServer === false) {
-        return res.status(400).json({
-            success: false,
-            error: 'Bu bir Windows (.exe) çalıştırılabilir dosyasıdır ve Linux sunucuda çalıştırılamaz. Dosyayı indirip kendi bilgisayarınızda çalıştırın.',
-        });
     }
 
     const runCmd = lang.runCommand(entryPoint);
@@ -207,6 +245,10 @@ app.post('/api/run', (req, res) => {
     });
 });
 
+/**
+ * API: /api/download/:sessionId/:fileName
+ * Derlenmiş .class dosyalarını veya native binary'yi indirme endpoint'i
+ */
 app.get('/api/download/:sessionId/:fileName', (req, res) => {
     const { sessionId, fileName } = req.params;
 
@@ -215,10 +257,9 @@ app.get('/api/download/:sessionId/:fileName', (req, res) => {
 
     const filePath = path.join(TEMP_DIR, safeSessionId, safeFileName);
     const isClass = safeFileName.endsWith('.class');
-    const isBinary = safeFileName === 'app';
-    const isExe = safeFileName.endsWith('.exe');
+    const isBinary = safeFileName === 'app.exe';
 
-    if (fs.existsSync(filePath) && (isClass || isBinary || isExe)) {
+    if (fs.existsSync(filePath) && (isClass || isBinary)) {
         res.setHeader('X-Powered-By', 'CodeStudio');
         res.download(filePath, safeFileName, (err) => {
             if (err) {
@@ -234,6 +275,7 @@ app.get('/api/download/:sessionId/:fileName', (req, res) => {
     }
 });
 
+// 🧹 Periyodik Temizlik: 15 dakikadan eski temp klasörlerini siler (Render diski dolmasın)
 setInterval(() => {
     if (!fs.existsSync(TEMP_DIR)) return;
 
@@ -246,10 +288,12 @@ setInterval(() => {
 
         if (now - stats.mtimeMs > 15 * 60 * 1000) {
             fs.rmSync(sessionPath, { recursive: true, force: true });
+            console.log(`[CodeStudio] Eski oturum temizlendi: ${session}`);
         }
     });
 }, 5 * 60 * 1000);
 
+// Sunucuyu Başlat
 app.listen(PORT, () => {
     console.log(`[CodeStudio] Sunucu http://localhost:${PORT} üzerinde aktif! ☕ (Java · C · C++)`);
 });
