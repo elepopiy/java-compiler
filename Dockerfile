@@ -1,7 +1,8 @@
 FROM node:20-alpine
 
 # Java Compiler (javac) ve Java Runtime'ı (java) yüklüyoruz
-RUN apk add --no-cache openjdk17-jdk
+# build-base: gcc, g++, make, libc-dev — C ve C++ derleyicileri için gerekli
+RUN apk add --no-cache openjdk17-jdk build-base
 
 WORKDIR /app
 
