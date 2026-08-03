@@ -810,6 +810,15 @@
     // yakalayıcımız devre dışı bırakılır; aksi halde "#include" gibi kelimeler
     // klavye tahmini sırasında karışabiliyordu (örn. "#inodetdtudlude").
     let isComposing = false;
+    let compositionGuardTimer = null;
+
+    function markComposingActive() {
+        isComposing = true;
+        if (compositionGuardTimer) clearTimeout(compositionGuardTimer);
+        // compositionend olayı gecikirse veya kaçırılırsa diye güvenlik ağı:
+        // 500ms sonra otomatik olarak kompozisyon kilidini kaldır.
+        compositionGuardTimer = setTimeout(() => { isComposing = false; }, 500);
+    }
 
     // ---------------------------------------------------------------------
     // 4. BAŞLATICI (INITIALIZATION)
@@ -1148,8 +1157,7 @@
                 language: data.language,
                 entryPoint: data.entryPoint,
                 canRun: data.canRun,
-                hasEntryPoint: data.hasEntryPoint,
-                runnableOnServer: data.runnableOnServer,
+                downloadOnly: data.downloadOnly,
                 compiledFiles: data.compiledFiles
             };
             renderCompiledPanel();
@@ -1161,7 +1169,7 @@
 
             if (data.canRun && cfg.runnableOnServer) {
                 await runCompiledProgram();
-            } else if (data.canRun && !cfg.runnableOnServer) {
+            } else if (data.downloadOnly) {
                 logConsole('info', `[Bilgi] app.exe gerçek bir Windows (PE32+) çalıştırılabilir dosyasıdır. Sunucu Linux üzerinde çalıştığı için burada çalıştırılamaz — dosyayı indirip kendi Windows bilgisayarınızda çalıştırabilirsiniz.`);
             } else {
                 logConsole('warn', cfg.mainErr);
@@ -1395,7 +1403,9 @@
     function handleEditorKeydown(e) {
         // Kompozisyon devam ediyorsa (tahmine dayalı klavye / IME) hiçbir şeye
         // dokunma — native davranışa bırak, yoksa metin karışır.
-        if (isComposing || e.isComposing || e.keyCode === 229) return;
+        if (isComposing || e.isComposing || e.keyCode === 229 || e.key === 'Unidentified' || e.key === 'Process') {
+            return;
+        }
 
         const el = DOM.codeEditor;
         const start = el.selectionStart;
@@ -1619,10 +1629,22 @@
     function setupEventListeners() {
         DOM.codeEditor.addEventListener('input', updateEditorUI);
 
-        DOM.codeEditor.addEventListener('compositionstart', () => { isComposing = true; });
+        DOM.codeEditor.addEventListener('compositionstart', () => { markComposingActive(); });
+        DOM.codeEditor.addEventListener('compositionupdate', () => { markComposingActive(); });
         DOM.codeEditor.addEventListener('compositionend', () => {
             isComposing = false;
+            if (compositionGuardTimer) clearTimeout(compositionGuardTimer);
             updateEditorUI();
+        });
+
+        // Tahmine dayalı klavyelerde karakterler çoğu zaman keydown değil,
+        // beforeinput üzerinden 'insertCompositionText' tipiyle gelir. Bu
+        // durumda özel tuş yakalayıcının (parantez eşleştirme, auto-indent
+        // vb.) devreye girmesini tamamen engelliyoruz.
+        DOM.codeEditor.addEventListener('beforeinput', (e) => {
+            if (e.inputType === 'insertCompositionText' || e.inputType === 'insertFromComposition') {
+                markComposingActive();
+            }
         });
 
         DOM.codeWrapper.addEventListener('scroll', () => {
