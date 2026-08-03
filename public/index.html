@@ -5,162 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CodeStudio ☕ | Java · C · C++ Derleyici (Pro Edition)</title>
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* ==========================================================================
-           1. CSS DEĞİŞKENLERİ (TEMA VE ANİMASYON AYARLARI)
-           ========================================================================== */
-        :root,
-        html[data-theme="java"] {
-            /* Renk Paleti — KAHVE (Java) */
+        /* ===== TEMA DEĞİŞKENLERİ (Java, C, C++) ===== */
+        :root, html[data-theme="java"] {
             --bg-dark: #0f0a08;
             --panel-bg: #1c1410;
             --sidebar-bg: #150f0c;
             --editor-bg: #18110e;
             --card-bg: #221813;
-
             --accent: #d49b54;
             --accent-hover: #e8b069;
             --accent-warm: #c86d3b;
             --accent-glow: rgba(212, 155, 84, 0.2);
-
             --text-primary: #f5ebe6;
             --text-secondary: #c2b2a5;
             --text-muted: #857365;
-
             --border-color: #38281f;
             --border-light: #4a362a;
             --border-active: #d49b54;
-
             --status-success: #55b96d;
             --status-success-bg: rgba(85, 185, 109, 0.15);
             --status-error: #e85d58;
             --status-error-bg: rgba(232, 93, 88, 0.15);
             --status-info: #54a5d4;
-
-            --sh-keyword: #c86d3b;
-            --sh-string: #88b369;
-            --sh-comment: #736256;
-            --sh-class: #e8b069;
-            --sh-method: #54a5d4;
-            --sh-number: #d47d54;
-            --sh-preproc: #9b8bd4;
-
-            --font-display: var(--font-main);
             --space-opacity: 0;
             --particle-opacity: 0;
         }
-
-        /* Renk Paleti — UZAY MAVİSİ (C) */
         html[data-theme="c"] {
             --bg-dark: #050914;
             --panel-bg: #0a1024;
             --sidebar-bg: #070c1c;
             --editor-bg: #080d20;
             --card-bg: #0d1430;
-
             --accent: #4fa8ff;
             --accent-hover: #7cc4ff;
             --accent-warm: #2f6fe0;
             --accent-glow: rgba(79, 168, 255, 0.25);
-
             --text-primary: #eaf2ff;
             --text-secondary: #9fb3d9;
             --text-muted: #5b6c93;
-
             --border-color: #141c38;
             --border-light: #22305c;
             --border-active: #4fa8ff;
-
             --status-success: #55e0a8;
             --status-success-bg: rgba(85, 224, 168, 0.15);
             --status-error: #ff6b6b;
             --status-error-bg: rgba(255, 107, 107, 0.15);
             --status-info: #4fa8ff;
-
-            --sh-keyword: #4fa8ff;
-            --sh-string: #7ee0c3;
-            --sh-comment: #5b6c93;
-            --sh-class: #c9a6ff;
-            --sh-method: #7cc4ff;
-            --sh-number: #ffb454;
-            --sh-preproc: #ff9d5c;
-
             --space-opacity: 1;
             --particle-opacity: 0;
         }
-
-        /* Renk Paleti — UZAY MOR/SİYAN (C++) */
         html[data-theme="cpp"] {
             --bg-dark: #070518;
             --panel-bg: #0d0a29;
             --sidebar-bg: #08061c;
             --editor-bg: #0a0724;
             --card-bg: #120e35;
-
             --accent: #8c6bff;
             --accent-hover: #a98cff;
             --accent-warm: #35e0ff;
             --accent-glow: rgba(140, 107, 255, 0.3);
-
             --text-primary: #f0ecff;
             --text-secondary: #ab9fd9;
             --text-muted: #635a8c;
-
             --border-color: #1a1440;
             --border-light: #2c2360;
             --border-active: #8c6bff;
-
             --status-success: #4ee6b8;
             --status-success-bg: rgba(78, 230, 184, 0.15);
             --status-error: #ff6b8c;
             --status-error-bg: rgba(255, 107, 140, 0.15);
             --status-info: #35e0ff;
-
-            --sh-keyword: #8c6bff;
-            --sh-string: #6ee69a;
-            --sh-comment: #635a8c;
-            --sh-class: #35e0ff;
-            --sh-method: #a98cff;
-            --sh-number: #ffb454;
-            --sh-preproc: #ff7ec4;
-
             --space-opacity: 1;
             --particle-opacity: 1;
         }
 
         html {
-            /* Sabit ölçüler ve tipografi — tema değişse de sabit kalır */
             --radius-sm: 6px;
             --radius-md: 10px;
             --radius-lg: 16px;
             --header-height: 68px;
-
             --font-main: 'Plus Jakarta Sans', sans-serif;
             --font-code: 'Fira Code', monospace;
-            --font-space: 'Space Grotesk', sans-serif;
-
             --transition-fast: 0.15s ease;
             --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             --transition-theme: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* ==========================================================================
-           2. SIFIRLAMA VE GENEL YAPILANDIRMA
-           ========================================================================== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: var(--font-main);
@@ -180,22 +118,15 @@
         ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
         ::selection { background: var(--accent-glow); color: #fff; }
 
-        /* ==========================================================================
-           3. ANİMASYON KEYFRAMES
-           ========================================================================== */
+        /* ===== ANİMASYONLAR ===== */
         @keyframes fadeInScale { 0% { opacity: 0; transform: scale(0.95) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
         @keyframes slideInRight { 0% { opacity: 0; transform: translateX(20px); } 100% { opacity: 1; transform: translateX(0); } }
         @keyframes slideOutLeft { 0% { opacity: 1; transform: translateX(0); height: 45px; margin-bottom: 6px; } 100% { opacity: 0; transform: translateX(-30px); height: 0; margin-bottom: 0; padding: 0; border: 0; } }
-        @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 var(--accent-glow); } 70% { box-shadow: 0 0 0 10px rgba(0,0,0,0); } 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); } }
         @keyframes steamRise { 0% { transform: translateY(0) scaleX(1); opacity: 0.8; } 50% { transform: translateY(-3px) scaleX(1.1); opacity: 1; } 100% { transform: translateY(0) scaleX(1); opacity: 0.8; } }
         @keyframes orbitSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes floatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
         @keyframes slideDownToast { 0% { opacity: 0; transform: translate(-50%, -20px); } 10% { opacity: 1; transform: translate(-50%, 20px); } 90% { opacity: 1; transform: translate(-50%, 20px); } 100% { opacity: 0; transform: translate(-50%, -20px); } }
-        @keyframes blinkCaretBar { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* ==========================================================================
-           4. UZAY ARKA PLANI (YILDIZ TARLASI + PARÇACIKLAR)
-           ========================================================================== */
         #starCanvas, #particleCanvas {
             position: fixed;
             inset: 0;
@@ -216,9 +147,7 @@
             height: 100vh;
         }
 
-        /* ==========================================================================
-           5. ÜST BİLGİ (HEADER)
-           ========================================================================== */
+        /* ===== HEADER ===== */
         header {
             height: var(--header-height);
             min-height: var(--header-height);
@@ -234,19 +163,14 @@
             gap: 20px;
             transition: background-color var(--transition-theme), border-color var(--transition-theme);
         }
-
         .header-left { display: flex; align-items: center; gap: 22px; min-width: 0; }
-
         .brand { display: flex; align-items: center; gap: 14px; cursor: pointer; transition: var(--transition-normal); flex-shrink: 0; }
         .brand:hover { transform: translateY(-1px); }
-
         .brand-icon-wrap { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; }
         .brand-icon-wrap i { font-size: 24px; color: var(--accent); filter: drop-shadow(0 0 10px var(--accent-glow)); transition: color var(--transition-theme); }
-
         html[data-theme="java"] .brand-icon-wrap i.fa-mug-hot { animation: steamRise 3s infinite ease-in-out; }
         html[data-theme="c"] .brand-icon-wrap i { animation: floatY 3.5s infinite ease-in-out; }
         html[data-theme="cpp"] .brand-icon-wrap i { animation: orbitSpin 6s linear infinite; }
-
         .brand-text { display: flex; flex-direction: column; justify-content: center; }
         .brand-text h1 {
             font-size: 19px; font-weight: 700; letter-spacing: 0.3px;
@@ -290,11 +214,8 @@
         .btn-compile:active { transform: translateY(1px); }
         .btn-compile:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; background: var(--border-color); color: var(--text-muted); }
 
-        /* ==========================================================================
-           6. ANA YAPI (APP CONTAINER & SIDEBAR)
-           ========================================================================== */
+        /* ===== SIDEBAR ===== */
         .app-container { display: flex; flex: 1; height: calc(100vh - var(--header-height)); overflow: hidden; position: relative; }
-
         .sidebar {
             width: 300px; min-width: 300px;
             background-color: color-mix(in srgb, var(--sidebar-bg) 90%, transparent);
@@ -304,22 +225,18 @@
             transition: var(--transition-normal), background-color var(--transition-theme), border-color var(--transition-theme);
             z-index: 10;
         }
-
         .sidebar-section { display: flex; flex-direction: column; border-bottom: 1px solid var(--border-color); max-height: 50%; }
-
         .sidebar-header {
             padding: 16px 18px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
             color: var(--accent); display: flex; align-items: center; justify-content: space-between;
             background-color: var(--accent-glow); backdrop-filter: blur(4px); position: sticky; top: 0; z-index: 2;
             transition: color var(--transition-theme), background-color var(--transition-theme);
         }
-
         .btn-icon { background: transparent; border: 1px solid transparent; color: var(--text-secondary); width: 28px; height: 28px; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition-fast); }
         .btn-add-file { border: 1px dashed var(--accent); color: var(--accent); }
         .btn-add-file:hover { background: var(--accent-glow); border-style: solid; transform: rotate(90deg); }
 
         .source-files-list { padding: 12px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 6px; }
-
         .source-file-item {
             display: flex; align-items: center; justify-content: space-between; padding: 10px 14px;
             background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md);
@@ -332,18 +249,14 @@
         .source-file-item.active { border-color: var(--border-active); background-color: var(--accent-glow); color: var(--accent); transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .source-file-item.active::before { background-color: var(--accent); }
         .source-file-item.removing { animation: slideOutLeft 0.3s forwards; pointer-events: none; }
-
         .file-info { display: flex; align-items: center; gap: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .file-info i { font-size: 16px; transition: var(--transition-fast); }
         .source-file-item.active .file-info i { color: var(--accent); transform: scale(1.1); }
-
         .btn-delete-file { color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 6px; border-radius: 4px; transition: var(--transition-fast); display: flex; align-items: center; justify-content: center; opacity: 0.5; }
         .source-file-item:hover .btn-delete-file { opacity: 1; }
         .btn-delete-file:hover { color: var(--status-error); background-color: var(--status-error-bg); transform: scale(1.1); }
 
-        .compiled-section { flex: 1; display: flex; flex-direction: column; overflow: hidden; background-color: transparent; }
         .compiled-list { padding: 12px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 8px; }
-
         .compiled-item {
             background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px;
             display: flex; align-items: center; justify-content: space-between; animation: fadeInScale 0.4s var(--transition-bounce) forwards;
@@ -354,26 +267,20 @@
         .compiled-item-info i { color: var(--status-success); font-size: 22px; background: var(--status-success-bg); padding: 8px; border-radius: 8px; }
         .compiled-name { font-family: var(--font-code); font-size: 13.5px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
         .compiled-sub { font-size: 11px; color: var(--text-muted); font-weight: 500; }
-
         .btn-download { background-color: var(--status-success-bg); color: var(--status-success); border: 1px solid rgba(85, 185, 109, 0.3); padding: 8px 14px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: var(--transition-fast); cursor: pointer; }
         .btn-download:hover { background-color: var(--status-success); color: #fff; transform: scale(1.05); box-shadow: 0 4px 10px rgba(85, 185, 109, 0.3); }
-
         .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; color: var(--text-muted); gap: 16px; height: 100%; animation: fadeInScale 0.5s ease; }
         .empty-state i { font-size: 42px; opacity: 0.3; color: var(--accent); }
         .empty-state p { font-size: 13px; line-height: 1.6; }
 
-        /* ==========================================================================
-           7. SAĞ BÖLÜM (EDİTÖR VE KONSOL)
-           ========================================================================== */
+        /* ===== EDİTÖR ===== */
         .main-editor-area { flex: 1; display: flex; flex-direction: column; background-color: transparent; overflow: hidden; position: relative; }
-
         .editor-tabs {
             height: 46px; min-height: 46px; background-color: color-mix(in srgb, var(--panel-bg) 92%, transparent);
             border-bottom: 1px solid var(--border-color); display: flex; align-items: center; overflow-x: auto;
             overflow-y: hidden; scroll-behavior: smooth;
         }
         .editor-tabs::-webkit-scrollbar { height: 4px; }
-
         .tab-item {
             height: 100%; padding: 0 20px; display: flex; align-items: center; gap: 10px; border-right: 1px solid var(--border-color);
             font-family: var(--font-main); font-weight: 500; font-size: 13px; color: var(--text-secondary); cursor: pointer;
@@ -386,76 +293,68 @@
         .tab-item .btn-delete-file { opacity: 0; margin-left: 4px; padding: 4px; }
         .tab-item:hover .btn-delete-file, .tab-item.active .btn-delete-file { opacity: 1; }
 
-        .editor-container { flex: 1; display: flex; position: relative; background-color: transparent; overflow: hidden; }
+        .editor-container {
+            flex: 1;
+            display: flex;
+            position: relative;
+            background-color: transparent;
+            overflow: hidden;
+        }
 
-        .line-numbers-container { width: 50px; min-width: 50px; background-color: color-mix(in srgb, var(--panel-bg) 85%, transparent); border-right: 1px solid var(--border-color); overflow: hidden; position: relative; z-index: 2; }
-        .line-numbers { position: absolute; top: 0; left: 0; right: 0; padding: 16px 0; font-family: var(--font-code); font-size: 14px; line-height: 1.6; color: var(--text-muted); text-align: right; padding-right: 14px; user-select: none; }
+        .line-numbers-container {
+            width: 50px;
+            min-width: 50px;
+            background-color: color-mix(in srgb, var(--panel-bg) 85%, transparent);
+            border-right: 1px solid var(--border-color);
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+        }
+        .line-numbers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 0;
+            font-family: var(--font-code);
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-muted);
+            text-align: right;
+            padding-right: 14px;
+            user-select: none;
+            pointer-events: none;
+            transition: none;
+        }
 
         .code-area-wrapper {
             flex: 1;
             position: relative;
             overflow: auto;
-            /* Şeffaflık sızıntısını ve renk kırpılmasını önlemek için arka planı sabitledik */
             background: var(--editor-bg);
         }
 
-        /* Sağa kaydığında yazının ve renklerin görünmez kalmasını engelleyen ek yapı */
-        .code-area-wrapper .code-highlight,
-        .code-area-wrapper .code-input {
-            min-width: 100%;
-            width: max-content; /* Sağa uzayan satırlarda katmanın kesilmesini engeller */
-            min-height: 100%;
-            box-sizing: border-box;
+        /* SADECE TEXTAREA – artık highlight katmanı yok */
+        #codeEditor {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 16px;
+            font-family: var(--font-code);
+            font-size: 14px;
+            line-height: 1.6;
+            tab-size: 4;
+            white-space: pre;
+            word-wrap: normal;
+            border: none;
+            outline: none;
+            background: transparent;
+            resize: none;
+            color: var(--text-primary);
+            caret-color: var(--accent);
+            overflow: visible;
         }
 
-        /* YENİ VE DÜZELTİLMİŞ CSS */
-        .code-highlight, .code-input {
-            margin: 0 !important;
-            padding: 16px !important;
-            font-family: var(--font-code) !important;
-            font-size: 14px !important;
-            line-height: 1.6 !important;
-            tab-size: 4 !important;
-            white-space: pre !important;
-            word-wrap: normal !important;
-            border: 0 !important;
-            outline: none !important;
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-    
-            /* YATAY KAYMA / GÖRÜNMEZLİK ÇÖZÜMÜ: */
-            min-width: 100% !important;
-            width: max-content !important; /* İçerik uzadıkça sağa doğru genişler */
-            min-height: 100% !important;
-            box-sizing: border-box !important;
-    
-            letter-spacing: normal !important;
-            word-spacing: normal !important;
-            font-variant-ligatures: none !important;
-        }
-
-        /* pre ve code etiketlerinin iç font boyutunun bozulmaması için */
-        .code-highlight code {
-            font-family: inherit;
-            font-size: inherit;
-            line-height: inherit;
-        }
-        .code-highlight { color: var(--text-primary); pointer-events: none; z-index: 0; }
-        .code-input { color: transparent; background: transparent; caret-color: var(--accent); z-index: 1; resize: none; overflow: hidden; }
-
-        mark.search-hit { background: var(--accent-glow); border-radius: 2px; }
-        mark.search-hit.current { background: var(--accent); color: #000; }
-
-        .sh-keyword { color: var(--sh-keyword); font-weight: 600; }
-        .sh-string { color: var(--sh-string); }
-        .sh-comment { color: var(--sh-comment); font-style: italic; }
-        .sh-class { color: var(--sh-class); font-weight: 600; }
-        .sh-method { color: var(--sh-method); }
-        .sh-number { color: var(--sh-number); }
-        .sh-preproc { color: var(--sh-preproc); font-weight: 600; }
-
-        /* Bul & Değiştir Çubuğu */
         .find-bar {
             position: absolute; top: 12px; right: 24px; z-index: 15;
             background: var(--panel-bg); border: 1px solid var(--border-light); border-radius: var(--radius-md);
@@ -475,7 +374,6 @@
         .find-toggle-replace { font-size: 11px; color: var(--text-muted); cursor: pointer; background: none; border: none; text-align: left; padding: 2px 4px; }
         .find-toggle-replace:hover { color: var(--accent); }
 
-        /* Konsol Paneli */
         .console-panel { height: 240px; background-color: color-mix(in srgb, #080504 92%, var(--bg-dark)); border-top: 1px solid var(--border-color); display: flex; flex-direction: column; z-index: 5; transition: height 0.3s ease, background-color var(--transition-theme), border-color var(--transition-theme); }
         .console-header { height: 40px; min-height: 40px; background-color: color-mix(in srgb, var(--panel-bg) 92%, transparent); border-bottom: 1px solid var(--border-color); border-top: 1px solid rgba(255,255,255,0.05); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 700; letter-spacing: 1px; color: var(--text-secondary); text-transform: uppercase; }
         .console-status { display: flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 600; padding: 4px 10px; border-radius: 20px; background: var(--accent-glow); }
@@ -487,9 +385,7 @@
         .console-msg.warn { color: var(--accent); }
         .console-msg .timestamp { color: var(--text-muted); margin-right: 10px; font-size: 11px; }
 
-        /* ==========================================================================
-           8. MODAL (POPUP) TASARIMI
-           ========================================================================== */
+        /* ===== MODAL ===== */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal { background: var(--panel-bg); border: 1px solid var(--border-light); border-radius: var(--radius-lg); width: 400px; padding: 30px; display: flex; flex-direction: column; gap: 20px; transform: scale(0.9) translateY(20px); opacity: 0; transition: transform 0.4s var(--transition-bounce), opacity 0.3s ease; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
@@ -530,7 +426,6 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <div class="app-shell">
-        <!-- ÜST BİLGİ (HEADER) -->
         <header>
             <div class="header-left">
                 <div class="brand" id="brandBlock">
@@ -540,20 +435,12 @@
                         <span id="brandSub">Advanced Java Environment</span>
                     </div>
                 </div>
-
                 <div class="lang-switcher" id="langSwitcher">
-                    <button class="lang-btn active" data-lang="java" title="Java Derleyicisi">
-                        <i class="fa-brands fa-java"></i><span>Java</span>
-                    </button>
-                    <button class="lang-btn" data-lang="c" title="C Derleyicisi">
-                        <i class="fa-solid fa-satellite"></i><span>C</span>
-                    </button>
-                    <button class="lang-btn" data-lang="cpp" title="C++ Derleyicisi">
-                        <i class="fa-brands fa-cuttlefish"></i><span>C++</span>
-                    </button>
+                    <button class="lang-btn active" data-lang="java"><i class="fa-brands fa-java"></i><span>Java</span></button>
+                    <button class="lang-btn" data-lang="c"><i class="fa-solid fa-satellite"></i><span>C</span></button>
+                    <button class="lang-btn" data-lang="cpp"><i class="fa-brands fa-cuttlefish"></i><span>C++</span></button>
                 </div>
             </div>
-
             <div class="header-right">
                 <button class="btn-header-icon" id="findToggleBtn" title="Ara / Değiştir (Ctrl+F)"><i class="fa-solid fa-magnifying-glass"></i></button>
                 <button class="btn-header-icon" id="saveBtn" title="Kaydet (Ctrl+S)"><i class="fa-solid fa-floppy-disk"></i></button>
@@ -566,21 +453,15 @@
             </div>
         </header>
 
-        <!-- ANA YAPI -->
         <div class="app-container">
-
-            <!-- SOL YAN ÇUBUK (SIDEBAR) -->
             <div class="sidebar">
                 <div class="sidebar-section" style="flex: 1;">
                     <div class="sidebar-header">
                         <span><i class="fa-solid fa-folder-tree" style="margin-right: 8px;"></i> <span id="filesHeaderLabel">Proje Dosyaları</span></span>
-                        <button class="btn-icon btn-add-file" id="addFileBtn" title="Yeni Dosya Ekle (Alt+N)">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
+                        <button class="btn-icon btn-add-file" id="addFileBtn" title="Yeni Dosya Ekle (Alt+N)"><i class="fa-solid fa-plus"></i></button>
                     </div>
                     <div class="source-files-list" id="sourceFilesList"></div>
                 </div>
-
                 <div class="sidebar-section" style="flex: 1; border-top: 1px solid var(--border-color); border-bottom: none;">
                     <div class="sidebar-header">
                         <span><i class="fa-solid fa-cubes" style="margin-right: 8px;"></i> Derlenenler (Build)</span>
@@ -594,21 +475,16 @@
                 </div>
             </div>
 
-            <!-- SAĞ EDİTÖR ALANI -->
             <div class="main-editor-area">
                 <div class="editor-tabs" id="editorTabs"></div>
-
                 <div class="editor-container">
                     <div class="line-numbers-container">
                         <div class="line-numbers" id="lineNumbers">1</div>
                     </div>
-
                     <div class="code-area-wrapper" id="codeWrapper">
-                        <pre class="code-highlight" aria-hidden="true"><code id="codeHighlight"></code></pre>
-                        <textarea class="code-input" id="codeEditor" spellcheck="false" wrap="off"></textarea>
+                        <!-- SADECE TEXTAREA, highlight katmanı yok -->
+                        <textarea id="codeEditor" spellcheck="false" wrap="off"></textarea>
                     </div>
-
-                    <!-- BUL / DEĞİŞTİR ÇUBUĞU -->
                     <div class="find-bar" id="findBar">
                         <div class="find-row">
                             <input type="text" id="findInput" placeholder="Ara...">
@@ -625,7 +501,6 @@
                         <button class="find-toggle-replace" id="findToggleReplaceBtn">+ Değiştir seçeneğini göster</button>
                     </div>
                 </div>
-
                 <div class="console-panel">
                     <div class="console-header">
                         <span><i class="fa-solid fa-terminal" style="margin-right: 8px;"></i> Terminal Çıktısı</span>
@@ -637,7 +512,6 @@
         </div>
     </div>
 
-    <!-- YENİ DOSYA EKLEME MODALI -->
     <div class="modal-overlay" id="newFileModal">
         <div class="modal">
             <div class="modal-header">
@@ -657,15 +531,11 @@
 
     <script>
     /**
-     * ==========================================================================
-     * CODESTUDIO PRO — JAVASCRIPT MOTORU
-     * Java (Kahve) / C (Uzay-Mavi) / C++ (Uzay-Mor + Fare Parçacıkları)
-     * ==========================================================================
+     * CODESTUDIO PRO – HIGHLIGHT KALDIRILDI, SADECE TEXTAREA
+     * Tüm özellikler çalışır, seçim çift görünümü yok.
      */
 
-    // ---------------------------------------------------------------------
-    // 1. DİL YAPILANDIRMASI
-    // ---------------------------------------------------------------------
+    // Dil yapılandırması
     const LANGS = {
         java: {
             key: 'java', label: 'Java', ext: '.java',
@@ -683,7 +553,6 @@
             outputExt: '.class',
             outputSub: 'Java Bytecode (JVM)',
             runnableOnServer: true,
-            keywords: ['public','private','protected','class','interface','static','void','int','long','short','byte','double','float','boolean','char','String','new','return','if','else','for','while','do','try','catch','finally','throw','throws','import','package','extends','implements','this','super','true','false','null','switch','case','break','continue','default','enum','final','abstract','synchronized'],
             formatName: (raw) => raw.charAt(0).toUpperCase() + raw.slice(1),
             template: (name) => `public class ${name} {\n    \n    public ${name}() {\n        // Kurucu metot\n    }\n    \n}`,
             welcome: [
@@ -707,7 +576,6 @@
             outputExt: '.exe',
             outputSub: 'Windows Executable (PE32+ x86-64)',
             runnableOnServer: false,
-            keywords: ['int','long','short','char','float','double','void','signed','unsigned','struct','union','enum','typedef','const','static','extern','volatile','register','sizeof','return','if','else','for','while','do','switch','case','break','continue','default','goto','NULL'],
             formatName: (raw) => raw.toLowerCase(),
             template: (name) => `#include <stdio.h>\n\nvoid ${name}(void) {\n    printf("${name} çalışıyor...\\n");\n}\n`,
             welcome: [
@@ -731,7 +599,6 @@
             outputExt: '.exe',
             outputSub: 'Windows Executable (PE32+ x86-64)',
             runnableOnServer: false,
-            keywords: ['int','long','short','char','float','double','void','bool','auto','class','struct','union','enum','typedef','template','typename','const','constexpr','static','extern','volatile','virtual','override','public','private','protected','namespace','using','new','delete','return','if','else','for','while','do','switch','case','break','continue','default','try','catch','throw','true','false','nullptr','this'],
             formatName: (raw) => raw.charAt(0).toUpperCase() + raw.slice(1),
             template: (name) => `#include <iostream>\n\nclass ${name} {\npublic:\n    void run() {\n        std::cout << "${name} calisiyor..." << std::endl;\n    }\n};\n`,
             welcome: [
@@ -740,14 +607,10 @@
             ]
         }
     };
-
     const LANG_ORDER = ['java', 'c', 'cpp'];
 
-    // ---------------------------------------------------------------------
-    // 2. UYGULAMA DURUMU (STATE)
-    // ---------------------------------------------------------------------
+    // STATE
     const STORAGE_KEY = 'codestudio_pro_state_v3';
-
     function buildDefaultState() {
         const state = {};
         LANG_ORDER.forEach(key => {
@@ -761,7 +624,6 @@
         });
         return state;
     }
-
     let State = buildDefaultState();
     let currentLang = 'java';
 
@@ -772,9 +634,8 @@
                 toSave[key] = { files: State[key].files, activeFileId: State[key].activeFileId };
             });
             localStorage.setItem(STORAGE_KEY, JSON.stringify({ state: toSave, currentLang }));
-        } catch (e) { /* depolama kullanılamıyor olabilir, sessizce geç */ }
+        } catch (e) {}
     }
-
     function loadPersistedState() {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
@@ -791,18 +652,14 @@
             return true;
         } catch (e) { return false; }
     }
-
     function curState() { return State[currentLang]; }
     function curCfg() { return LANGS[currentLang]; }
 
-    // ---------------------------------------------------------------------
-    // 3. DOM ELEMENTLERİ ÖNBELLEĞİ
-    // ---------------------------------------------------------------------
+    // DOM
     const DOM = {
         sourceFilesList: document.getElementById('sourceFilesList'),
         editorTabs: document.getElementById('editorTabs'),
         codeEditor: document.getElementById('codeEditor'),
-        codeHighlight: document.getElementById('codeHighlight'),
         codeWrapper: document.getElementById('codeWrapper'),
         lineNumbers: document.getElementById('lineNumbers'),
         compileBtn: document.getElementById('compileBtn'),
@@ -819,7 +676,6 @@
         brandIcon: document.getElementById('brandIcon'),
         brandTitle: document.getElementById('brandTitle'),
         brandSub: document.getElementById('brandSub'),
-        brandBlock: document.getElementById('brandBlock'),
         langSwitcher: document.getElementById('langSwitcher'),
         filesHeaderLabel: document.getElementById('filesHeaderLabel'),
         emptyBuildText: document.getElementById('emptyBuildText'),
@@ -845,27 +701,16 @@
         particleCanvas: document.getElementById('particleCanvas')
     };
 
-    // Bul durumu
     const FindState = { matches: [], index: -1, term: '' };
-
-    // IME / tahmine dayalı klavye (mobil, Türkçe klavye vb.) kompozisyon durumu.
-    // Kompozisyon sırasında (compositionstart -> compositionend) özel tuş
-    // yakalayıcımız devre dışı bırakılır; aksi halde "#include" gibi kelimeler
-    // klavye tahmini sırasında karışabiliyordu (örn. "#inodetdtudlude").
     let isComposing = false;
     let compositionGuardTimer = null;
-
     function markComposingActive() {
         isComposing = true;
         if (compositionGuardTimer) clearTimeout(compositionGuardTimer);
-        // compositionend olayı gecikirse veya kaçırılırsa diye güvenlik ağı:
-        // 500ms sonra otomatik olarak kompozisyon kilidini kaldır.
         compositionGuardTimer = setTimeout(() => { isComposing = false; }, 500);
     }
 
-    // ---------------------------------------------------------------------
-    // 4. BAŞLATICI (INITIALIZATION)
-    // ---------------------------------------------------------------------
+    // Uygulama başlatma
     function initApp() {
         loadPersistedState();
         applyLangTheme(currentLang, true);
@@ -875,38 +720,28 @@
         setupEventListeners();
         initStarfield();
         initParticles();
-        logConsole('info', `[Sistem] ${curCfg().brandTitle} ortamı başlatıldı v3.0`);
-        logConsole('info', '[Sistem] Çalışma alanı hazır. Kodlamaya başlayabilirsiniz.');
+        logConsole('info', `[Sistem] ${curCfg().brandTitle} ortamı başlatıldı (sadece textarea)`);
+        logConsole('info', '[Sistem] Çalışma alanı hazır.');
     }
 
-    // ---------------------------------------------------------------------
-    // 5. DİL DEĞİŞTİRME
-    // ---------------------------------------------------------------------
     function applyLangTheme(lang, silent) {
         const cfg = LANGS[lang];
         document.documentElement.setAttribute('data-theme', lang);
-
         DOM.brandIcon.className = cfg.brandIcon;
         DOM.brandTitle.textContent = cfg.brandTitle;
         DOM.brandSub.textContent = cfg.brandSub;
         DOM.filesHeaderLabel.textContent = cfg.filesHeaderLabel;
         DOM.emptyBuildText.innerHTML = cfg.emptyBuildText;
         DOM.compileBtn.title = `Tüm projeyi derle (Ctrl+Enter) — ${cfg.compileCmd}`;
-
         document.querySelectorAll('.lang-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.lang === lang);
         });
-
         renderCompiledPanel();
         DOM.compilerStatus.innerHTML = `<i class="fa-solid fa-check-circle"></i> Hazır`;
         DOM.compilerStatus.style.color = 'var(--accent)';
         DOM.compilerStatus.style.background = 'var(--accent-glow)';
-
-        if (!silent) {
-            logConsole('info', `[Sistem] ${cfg.label} ortamına geçildi.`);
-        }
+        if (!silent) logConsole('info', `[Sistem] ${cfg.label} ortamına geçildi.`);
     }
-
     function switchLanguage(lang) {
         if (lang === currentLang || !LANGS[lang]) return;
         saveCurrentFile();
@@ -919,25 +754,19 @@
         persistState();
     }
 
-    // ---------------------------------------------------------------------
-    // 6. ARAYÜZ (UI) RENDER FONKSİYONLARI
-    // ---------------------------------------------------------------------
     function renderSidebar() {
         const cfg = curCfg();
         const st = curState();
         DOM.sourceFilesList.innerHTML = '';
-
         st.files.forEach(file => {
             const isActive = file.id === st.activeFileId;
             const item = document.createElement('div');
             item.className = `source-file-item ${isActive ? 'active' : ''}`;
             item.id = `sidebar_item_${file.id}`;
             item.onclick = () => switchActiveFile(file.id);
-
             const deleteBtnHtml = st.files.length > 1
                 ? `<button class="btn-delete-file" onclick="deleteFile(event, '${file.id}')" title="Dosyayı Sil"><i class="fa-solid fa-trash-can"></i></button>`
                 : '';
-
             item.innerHTML = `
                 <div class="file-info">
                     <i class="${cfg.fileIcon}"></i>
@@ -948,23 +777,19 @@
             DOM.sourceFilesList.appendChild(item);
         });
     }
-
     function renderTabs() {
         const cfg = curCfg();
         const st = curState();
         DOM.editorTabs.innerHTML = '';
-
         st.files.forEach(file => {
             const isActive = file.id === st.activeFileId;
             const tab = document.createElement('div');
             tab.className = `tab-item ${isActive ? 'active' : ''}`;
             tab.id = `tab_item_${file.id}`;
             tab.onclick = () => switchActiveFile(file.id);
-
             const deleteBtnHtml = st.files.length > 1
                 ? `<i class="fa-solid fa-xmark btn-delete-file" onclick="deleteFile(event, '${file.id}')" title="Kapat"></i>`
                 : '';
-
             tab.innerHTML = `
                 <i class="${cfg.fileIcon}" style="font-size: 14px; margin-right: 4px; color: ${isActive ? 'var(--accent)' : 'inherit'}"></i>
                 ${file.name}
@@ -972,41 +797,29 @@
             `;
             DOM.editorTabs.appendChild(tab);
         });
-
         const activeTab = document.getElementById(`tab_item_${st.activeFileId}`);
         if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
 
-    // ---------------------------------------------------------------------
-    // 7. EDİTÖR İŞLEMLERİ
-    // ---------------------------------------------------------------------
     function switchActiveFile(id) {
         const st = curState();
         if (st.activeFileId === id) return;
         saveCurrentFile();
         st.activeFileId = id;
-
         document.querySelectorAll('.source-file-item').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
-
         const sideItem = document.getElementById(`sidebar_item_${id}`);
         const tabItem = document.getElementById(`tab_item_${id}`);
         if (sideItem) sideItem.classList.add('active');
-        if (tabItem) {
-            tabItem.classList.add('active');
-            tabItem.scrollIntoView({ behavior: 'smooth', inline: 'center' });
-        }
-
+        if (tabItem) { tabItem.classList.add('active'); tabItem.scrollIntoView({ behavior: 'smooth', inline: 'center' }); }
         loadActiveFile();
         persistState();
     }
-
     function saveCurrentFile() {
         const st = curState();
         const activeFile = st.files.find(f => f.id === st.activeFileId);
         if (activeFile) activeFile.content = DOM.codeEditor.value;
     }
-
     function loadActiveFile() {
         const st = curState();
         const activeFile = st.files.find(f => f.id === st.activeFileId);
@@ -1017,71 +830,26 @@
         closeFindBar();
     }
 
+    // SADECE TEXTAREA – satır numaraları ve scroll
     function updateEditorUI() {
         const code = DOM.codeEditor.value;
-
-        DOM.codeHighlight.innerHTML = applySyntaxHighlighting(code, currentLang);
-
-        DOM.codeEditor.style.height = 'auto';
-        DOM.codeHighlight.parentElement.style.height = 'auto';
-
-        const newHeight = DOM.codeEditor.scrollHeight + 'px';
-        DOM.codeEditor.style.height = newHeight;
-        DOM.codeHighlight.parentElement.style.height = newHeight;
-
         const lineCount = code.split('\n').length;
         let linesHtml = '';
         for (let i = 1; i <= lineCount; i++) linesHtml += i + '<br>';
         DOM.lineNumbers.innerHTML = linesHtml;
+        // Scroll senkronizasyonu
+        const scrollTop = DOM.codeWrapper.scrollTop;
+        DOM.lineNumbers.style.transform = `translateY(${scrollTop}px)`;
     }
 
-    // YENİ VE DÜZELTİLMİŞ KOD
-    function applySyntaxHighlighting(text, lang) {
-        if (!text) return '';
-        const cfg = LANGS[lang];
-
-        // 1. Önce karakterleri HTML olarak güvenli hale getir
-        let safeText = text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
-
-        // 2. Yorum Satırları (Önce işlenmeli)
-        safeText = safeText.replace(/(\/\/[^\n]*)/g, '___COMMENT___$1___ENDCOMMENT___');
-        safeText = safeText.replace(/(\/\*[\s\S]*?\*\/)/g, '___COMMENT___$1___ENDCOMMENT___');
-
-        // 3. String / Metin İfadeleri
-        safeText = safeText.replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="sh-string">$1<\/span>');
-
-        // 4. Preprocessor (#include, #define vb.)
-        if (lang !== 'java') {
-            safeText = safeText.replace(/^(\s*#\s*\w+.*)$/gm, '<span class="sh-preproc">$1<\/span>');
-        }
-
-        // 5. Anahtar Kelimeler (Keywords)
-        const keywordRegex = new RegExp(`\\b(${cfg.keywords.join('|')})\\b`, 'g');
-        safeText = safeText.replace(keywordRegex, '<span class="sh-keyword">$1<\/span>');
-
-        // 6. Sayılar
-        safeText = safeText.replace(/\b(\d+)\b/g, '<span class="sh-number">$1<\/span>');
-
-        // 7. Sınıflar ve Metodlar
-        if (lang === 'java' || lang === 'cpp') {
-            safeText = safeText.replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span class="sh-class">$1<\/span>');
-        }
-        safeText = safeText.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span class="sh-method">$1<\/span>');
-
-        // Geçici yorum etiketlerini düzelt
-        safeText = safeText
-            .replace(/___COMMENT___/g, '<span class="sh-comment">')
-            .replace(/___ENDCOMMENT___/g, '<\/span>');
-
-        return safeText;
+    function setupScrollSync() {
+        DOM.codeWrapper.addEventListener('scroll', () => {
+            const scrollTop = DOM.codeWrapper.scrollTop;
+            DOM.lineNumbers.style.transform = `translateY(${scrollTop}px)`;
+        });
     }
 
-    // ---------------------------------------------------------------------
-    // 8. DOSYA YÖNETİMİ
-    // ---------------------------------------------------------------------
+    // Yeni dosya
     function openNewFileModal() {
         const cfg = curCfg();
         DOM.modalIcon.className = cfg.brandIcon;
@@ -1092,68 +860,42 @@
         DOM.newFileNameInput.value = '';
         setTimeout(() => DOM.newFileNameInput.focus(), 100);
     }
-
-    function closeNewFileModal() {
-        DOM.newFileModal.classList.remove('active');
-    }
-
+    function closeNewFileModal() { DOM.newFileModal.classList.remove('active'); }
     function createNewFile() {
         const cfg = curCfg();
         const st = curState();
         let rawName = DOM.newFileNameInput.value.trim();
-        if (!rawName) {
-            showToast('Lütfen geçerli bir dosya adı girin.', 'error');
-            return;
-        }
-
+        if (!rawName) { showToast('Lütfen geçerli bir dosya adı girin.', 'error'); return; }
         rawName = rawName.replace(/[^a-zA-Z0-9_]/g, '');
-        if (!rawName) {
-            showToast('Geçersiz karakterler kullandınız.', 'error');
-            return;
-        }
+        if (!rawName) { showToast('Geçersiz karakterler kullandınız.', 'error'); return; }
         rawName = cfg.formatName(rawName);
         const fileName = rawName + cfg.ext;
-
         if (st.files.some(f => f.name.toLowerCase() === fileName.toLowerCase())) {
             showToast(`'${fileName}' adında bir dosya zaten mevcut!`, 'error');
             return;
         }
-
         const newFile = {
             id: 'f_' + currentLang + '_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
             name: fileName,
             content: cfg.template(rawName)
         };
-
         st.files.push(newFile);
         closeNewFileModal();
         showToast(`Dosya oluşturuldu: ${fileName}`, 'success');
-
         renderSidebar();
         renderTabs();
         switchActiveFile(newFile.id);
     }
-
     function deleteFile(event, id) {
         event.stopPropagation();
         const st = curState();
-        if (st.files.length <= 1) {
-            showToast('Son dosyayı silemezsiniz!', 'error');
-            return;
-        }
-
+        if (st.files.length <= 1) { showToast('Son dosyayı silemezsiniz!', 'error'); return; }
         const fileToDelete = st.files.find(f => f.id === id);
         const sideItem = document.getElementById(`sidebar_item_${id}`);
         if (sideItem) sideItem.classList.add('removing');
-
         setTimeout(() => {
             st.files = st.files.filter(f => f.id !== id);
-
-            if (st.activeFileId === id) {
-                st.activeFileId = st.files[0].id;
-                loadActiveFile();
-            }
-
+            if (st.activeFileId === id) { st.activeFileId = st.files[0].id; loadActiveFile(); }
             renderSidebar();
             renderTabs();
             persistState();
@@ -1161,29 +903,19 @@
         }, 300);
     }
 
-    // ---------------------------------------------------------------------
-    // 9. DERLEME MOTORU — GERÇEK BACKEND API ÇAĞRILARI
-    //    Artık setTimeout ile SAHTE derleme yapmıyor. index.js içindeki
-    //    /api/compile, /api/run ve /api/download uçlarını gerçekten
-    //    çağırıyor. "İndir" butonu artık gerçek dosya indiriyor.
-    // ---------------------------------------------------------------------
+    // Derleme
     async function compileProject() {
         const st = curState();
         const cfg = curCfg();
         if (st.isCompiling) return;
-
         saveCurrentFile();
         st.isCompiling = true;
-
         DOM.compileBtn.disabled = true;
         DOM.compileBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Derleniyor...</span>`;
-
         DOM.compilerStatus.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> İşleniyor`;
         DOM.compilerStatus.style.color = 'var(--accent)';
         DOM.compilerStatus.style.background = 'var(--accent-glow)';
-
         logConsole('warn', `\n> ${cfg.compileCmd} çalıştırılıyor...`);
-
         try {
             const response = await fetch('/api/compile', {
                 method: 'POST',
@@ -1193,20 +925,14 @@
                     files: st.files.map(f => ({ fileName: f.name, content: f.content }))
                 })
             });
-
             let data;
-            try {
-                data = await response.json();
-            } catch (parseErr) {
+            try { data = await response.json(); } catch (parseErr) {
                 throw new Error(`Sunucudan geçersiz yanıt geldi (HTTP ${response.status}). Backend çalışıyor mu?`);
             }
-
             if (!response.ok || !data.success) {
                 throw new Error(data.error || `HTTP ${response.status}`);
             }
-
             logConsole('success', `[BAŞARILI] ${data.message || 'Derleme tamamlandı.'}`);
-
             st.lastBuild = {
                 sessionId: data.sessionId,
                 language: data.language,
@@ -1216,12 +942,10 @@
                 compiledFiles: data.compiledFiles
             };
             renderCompiledPanel();
-
             DOM.compilerStatus.innerHTML = `<i class="fa-solid fa-check-double"></i> Başarılı`;
             DOM.compilerStatus.style.color = 'var(--status-success)';
             DOM.compilerStatus.style.background = 'var(--status-success-bg)';
             showToast('Proje başarıyla derlendi!', 'success');
-
             if (data.canRun && cfg.runnableOnServer) {
                 await runCompiledProgram();
             } else if (data.downloadOnly) {
@@ -1231,26 +955,21 @@
             }
         } catch (err) {
             logConsole('error', `[DERLEME HATASI] ${err.message}`);
-
             DOM.compilerStatus.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Hata`;
             DOM.compilerStatus.style.color = 'var(--status-error)';
             DOM.compilerStatus.style.background = 'var(--status-error-bg)';
             showToast('Derleme hatası! Konsolu inceleyin.', 'error');
         }
-
         st.isCompiling = false;
         DOM.compileBtn.disabled = false;
         DOM.compileBtn.innerHTML = `<i class="fa-solid fa-play"></i> <span>Kodu Derle</span>`;
     }
-
     async function runCompiledProgram() {
         const st = curState();
         const build = st.lastBuild;
         if (!build || !build.canRun) return;
-
         const runCmd = currentLang === 'java' ? `java ${build.entryPoint}` : './app';
         logConsole('warn', `> ${runCmd} çalıştırılıyor...\n--- PROGRAM ÇIKTISI ---`);
-
         try {
             const response = await fetch('/api/run', {
                 method: 'POST',
@@ -1261,12 +980,8 @@
                     entryPoint: build.entryPoint
                 })
             });
-
             const data = await response.json();
-            if (!response.ok || !data.success) {
-                throw new Error(data.error || `HTTP ${response.status}`);
-            }
-
+            if (!response.ok || !data.success) throw new Error(data.error || `HTTP ${response.status}`);
             if (data.stdout) logConsole('info', data.stdout.replace(/\n$/, ''));
             if (data.stderr) logConsole('error', data.stderr.replace(/\n$/, ''));
             logConsole('warn', `--- Çıkış kodu: ${data.exitCode} ---`);
@@ -1274,23 +989,19 @@
             logConsole('error', `[ÇALIŞTIRMA HATASI] ${err.message}`);
         }
     }
-
     function renderCompiledPanel() {
         const cfg = curCfg();
         const st = curState();
         const build = st.lastBuild;
-
         if (!build || !build.compiledFiles || build.compiledFiles.length === 0) {
             DOM.compiledList.innerHTML = `<div class="empty-state"><i class="fa-solid fa-box-open"></i><p>${cfg.emptyBuildText}</p></div>`;
             return;
         }
-
         DOM.compiledList.innerHTML = '';
         build.compiledFiles.forEach((file, index) => {
             const item = document.createElement('div');
             item.className = 'compiled-item';
             item.style.animationDelay = `${index * 0.1}s`;
-
             item.innerHTML = `
                 <div class="compiled-item-info">
                     <i class="fa-solid fa-file-code"></i>
@@ -1307,40 +1018,29 @@
         });
     }
 
-    // ---------------------------------------------------------------------
-    // 10. YARDIMCI BİLEŞENLER
-    // ---------------------------------------------------------------------
+    // Konsol ve toast
     function logConsole(type, text) {
         const msg = document.createElement('div');
         msg.className = `console-msg ${type}`;
-
         const time = new Date().toLocaleTimeString('tr-TR', { hour12: false });
-
         if (text.includes('\n')) {
             msg.innerHTML = `<span class="timestamp">[${time}]</span><br><pre style="font-family:inherit; margin-top:4px;">${text}</pre>`;
         } else {
             msg.innerHTML = `<span class="timestamp">[${time}]</span>${text}`;
         }
-
         DOM.consoleOutput.appendChild(msg);
         DOM.consoleOutput.scrollTo({ top: DOM.consoleOutput.scrollHeight, behavior: 'smooth' });
     }
-
     function showToast(message, type = 'info') {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-
         const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-circle-xmark' : 'fa-info-circle';
-
         toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
         DOM.toastContainer.appendChild(toast);
-
         setTimeout(() => toast.remove(), 3000);
     }
 
-    // ---------------------------------------------------------------------
-    // 11. BUL / DEĞİŞTİR (Ctrl+F)
-    // ---------------------------------------------------------------------
+    // Bul / Değiştir
     function openFindBar() {
         DOM.findBar.classList.add('active');
         const selected = DOM.codeEditor.value.substring(DOM.codeEditor.selectionStart, DOM.codeEditor.selectionEnd);
@@ -1349,75 +1049,61 @@
         DOM.findInput.select();
         runSearch();
     }
-
     function closeFindBar() {
         DOM.findBar.classList.remove('active');
         FindState.matches = [];
         FindState.index = -1;
         DOM.findCount.textContent = '0/0';
     }
-
     function toggleFindBar() {
         if (DOM.findBar.classList.contains('active')) closeFindBar();
         else openFindBar();
     }
-
     function runSearch() {
         const term = DOM.findInput.value;
         FindState.term = term;
-        if (!term) {
-            FindState.matches = [];
-            FindState.index = -1;
-            DOM.findCount.textContent = '0/0';
-            return;
-        }
+        if (!term) { FindState.matches = []; FindState.index = -1; DOM.findCount.textContent = '0/0'; return; }
         const text = DOM.codeEditor.value.toLowerCase();
         const needle = term.toLowerCase();
         const matches = [];
         let idx = 0;
-        while ((idx = text.indexOf(needle, idx)) !== -1) {
-            matches.push(idx);
-            idx += needle.length;
-        }
+        while ((idx = text.indexOf(needle, idx)) !== -1) { matches.push(idx); idx += needle.length; }
         FindState.matches = matches;
         FindState.index = matches.length > 0 ? 0 : -1;
         updateFindCount();
         if (matches.length > 0) selectMatch(0);
     }
-
     function updateFindCount() {
         const total = FindState.matches.length;
         const current = total > 0 ? FindState.index + 1 : 0;
         DOM.findCount.textContent = `${current}/${total}`;
     }
-
     function selectMatch(i) {
         const term = FindState.term;
         const pos = FindState.matches[i];
         if (pos === undefined) return;
         DOM.codeEditor.focus();
         DOM.codeEditor.setSelectionRange(pos, pos + term.length);
+        const lineHeight = parseFloat(getComputedStyle(DOM.codeEditor).lineHeight) || 22.4;
+        const paddingTop = parseFloat(getComputedStyle(DOM.codeEditor).paddingTop) || 0;
         const before = DOM.codeEditor.value.substring(0, pos);
-        const lineIndex = before.split('\n').length - 1;
-        const lineHeight = 22.4;
-        const targetTop = Math.max(0, lineIndex * lineHeight - DOM.codeWrapper.clientHeight / 2);
+        const lines = before.split('\n');
+        const lineIndex = lines.length - 1;
+        const targetTop = Math.max(0, paddingTop + lineIndex * lineHeight - DOM.codeWrapper.clientHeight / 2);
         DOM.codeWrapper.scrollTo({ top: targetTop, behavior: 'smooth' });
     }
-
     function findNext() {
         if (FindState.matches.length === 0) { runSearch(); return; }
         FindState.index = (FindState.index + 1) % FindState.matches.length;
         selectMatch(FindState.index);
         updateFindCount();
     }
-
     function findPrev() {
         if (FindState.matches.length === 0) { runSearch(); return; }
         FindState.index = (FindState.index - 1 + FindState.matches.length) % FindState.matches.length;
         selectMatch(FindState.index);
         updateFindCount();
     }
-
     function replaceOne() {
         if (FindState.matches.length === 0 || FindState.index === -1) return;
         const replaceText = DOM.replaceInput.value;
@@ -1427,7 +1113,6 @@
         saveCurrentFile();
         runSearch();
     }
-
     function replaceAll() {
         if (!FindState.term) return;
         const replaceText = DOM.replaceInput.value;
@@ -1445,34 +1130,17 @@
         runSearch();
     }
 
-    // ---------------------------------------------------------------------
-    // 12. DÜZELTİLMİŞ EDİTÖR KISAYOLLARI
-    // ---------------------------------------------------------------------
+    // Klavye kısayolları
     const PAIRS = { '{': '}', '(': ')', '[': ']', '"': '"', "'": "'" };
     const CLOSERS = new Set(Object.values(PAIRS));
-
-    function insertAtCursor(text) {
-        document.execCommand('insertText', false, text);
-    }
-
+    function insertAtCursor(text) { document.execCommand('insertText', false, text); }
     function handleEditorKeydown(e) {
-        // Kompozisyon devam ediyorsa (tahmine dayalı klavye / IME) hiçbir şeye
-        // dokunma — native davranışa bırak, yoksa metin karışır.
-        if (isComposing || e.isComposing || e.keyCode === 229 || e.key === 'Unidentified' || e.key === 'Process') {
-            return;
-        }
-
+        if (isComposing || e.isComposing || e.keyCode === 229 || e.key === 'Unidentified' || e.key === 'Process') return;
         const el = DOM.codeEditor;
         const start = el.selectionStart;
         const end = el.selectionEnd;
         const val = el.value;
-
-        if (e.key === 'Tab') {
-            e.preventDefault();
-            insertAtCursor('    ');
-            return;
-        }
-
+        if (e.key === 'Tab') { e.preventDefault(); insertAtCursor('    '); return; }
         if (PAIRS[e.key] && !e.ctrlKey && !e.metaKey) {
             e.preventDefault();
             if (start !== end) {
@@ -1486,13 +1154,11 @@
             updateEditorUI();
             return;
         }
-
         if (CLOSERS.has(e.key) && !e.ctrlKey && !e.metaKey && start === end && val.charAt(start) === e.key) {
             e.preventDefault();
             el.setSelectionRange(start + 1, start + 1);
             return;
         }
-
         if (e.key === 'Backspace' && start === end && start > 0) {
             const prevChar = val.charAt(start - 1);
             const nextChar = val.charAt(start);
@@ -1504,7 +1170,6 @@
                 return;
             }
         }
-
         if (e.key === 'Enter') {
             e.preventDefault();
             const lines = val.substring(0, start).split('\n');
@@ -1512,7 +1177,6 @@
             const indent = (lastLine.match(/^\s*/) || [''])[0];
             const prevChar = val.charAt(start - 1);
             const nextChar = val.charAt(start);
-
             if (prevChar === '{' && nextChar === '}') {
                 const nextIndent = indent + '    ';
                 insertAtCursor('\n' + nextIndent + '\n' + indent);
@@ -1524,12 +1188,10 @@
             return;
         }
     }
-
     function bindUndoRedo(e) {
         const ctrlLike = e.ctrlKey || e.metaKey;
         if (!ctrlLike) return;
         const key = e.key.toLowerCase();
-
         if (key === 'z' && !e.shiftKey) {
             e.preventDefault();
             document.execCommand('undo');
@@ -1549,19 +1211,15 @@
         }
     }
 
-    // ---------------------------------------------------------------------
-    // 13. YILDIZ TARLASI
-    // ---------------------------------------------------------------------
+    // Yıldızlar
     let stars = [];
     let starCtx, starW, starH;
-
     function initStarfield() {
         starCtx = DOM.starCanvas.getContext('2d');
         resizeStarfield();
         window.addEventListener('resize', resizeStarfield);
         requestAnimationFrame(drawStarfield);
     }
-
     function resizeStarfield() {
         starW = DOM.starCanvas.width = window.innerWidth;
         starH = DOM.starCanvas.height = window.innerHeight;
@@ -1575,7 +1233,6 @@
             phase: Math.random() * Math.PI * 2
         }));
     }
-
     function drawStarfield(t) {
         if (starCtx) {
             starCtx.clearRect(0, 0, starW, starH);
@@ -1597,14 +1254,11 @@
         requestAnimationFrame(drawStarfield);
     }
 
-    // ---------------------------------------------------------------------
-    // 14. FARE PARÇACIKLARI (Sadece C++ teması)
-    // ---------------------------------------------------------------------
+    // Parçacıklar
     let particles = [];
     let particleCtx, pW, pH;
     let lastMouse = { x: -9999, y: -9999 };
     const MAX_PARTICLES = 140;
-
     function initParticles() {
         particleCtx = DOM.particleCanvas.getContext('2d');
         resizeParticles();
@@ -1612,12 +1266,10 @@
         window.addEventListener('mousemove', onMouseMoveParticles);
         requestAnimationFrame(drawParticles);
     }
-
     function resizeParticles() {
         pW = DOM.particleCanvas.width = window.innerWidth;
         pH = DOM.particleCanvas.height = window.innerHeight;
     }
-
     function onMouseMoveParticles(e) {
         lastMouse.x = e.clientX;
         lastMouse.y = e.clientY;
@@ -1635,18 +1287,12 @@
             });
         }
     }
-
     function drawParticles() {
         if (particleCtx) {
             particleCtx.clearRect(0, 0, pW, pH);
             if (currentLang === 'cpp') {
-                particles.forEach(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.life -= p.decay;
-                });
+                particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life -= p.decay; });
                 particles = particles.filter(p => p.life > 0);
-
                 for (let i = 0; i < particles.length; i++) {
                     for (let j = i + 1; j < particles.length; j++) {
                         const a = particles[i], b = particles[j];
@@ -1662,7 +1308,6 @@
                         }
                     }
                 }
-
                 particles.forEach(p => {
                     particleCtx.beginPath();
                     particleCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
@@ -1678,12 +1323,9 @@
         requestAnimationFrame(drawParticles);
     }
 
-    // ---------------------------------------------------------------------
-    // 15. OLAY DİNLEYİCİLERİ
-    // ---------------------------------------------------------------------
+    // Olay dinleyicileri
     function setupEventListeners() {
         DOM.codeEditor.addEventListener('input', updateEditorUI);
-
         DOM.codeEditor.addEventListener('compositionstart', () => { markComposingActive(); });
         DOM.codeEditor.addEventListener('compositionupdate', () => { markComposingActive(); });
         DOM.codeEditor.addEventListener('compositionend', () => {
@@ -1691,37 +1333,25 @@
             if (compositionGuardTimer) clearTimeout(compositionGuardTimer);
             updateEditorUI();
         });
-
-        // Tahmine dayalı klavyelerde karakterler çoğu zaman keydown değil,
-        // beforeinput üzerinden 'insertCompositionText' tipiyle gelir. Bu
-        // durumda özel tuş yakalayıcının (parantez eşleştirme, auto-indent
-        // vb.) devreye girmesini tamamen engelliyoruz.
         DOM.codeEditor.addEventListener('beforeinput', (e) => {
             if (e.inputType === 'insertCompositionText' || e.inputType === 'insertFromComposition') {
                 markComposingActive();
             }
         });
-
-        DOM.codeWrapper.addEventListener('scroll', () => {
-            DOM.lineNumbers.style.top = `-${DOM.codeWrapper.scrollTop}px`;
-        });
-
+        setupScrollSync();
         DOM.codeEditor.addEventListener('keydown', handleEditorKeydown);
 
         DOM.langSwitcher.querySelectorAll('.lang-btn').forEach(btn => {
             btn.addEventListener('click', () => switchLanguage(btn.dataset.lang));
         });
-
         DOM.addFileBtn.addEventListener('click', openNewFileModal);
         DOM.cancelModalBtn.addEventListener('click', closeNewFileModal);
         DOM.confirmModalBtn.addEventListener('click', createNewFile);
         DOM.compileBtn.addEventListener('click', compileProject);
-
         DOM.newFileNameInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') createNewFile();
             if (e.key === 'Escape') closeNewFileModal();
         });
-
         DOM.findToggleBtn.addEventListener('click', toggleFindBar);
         DOM.saveBtn.addEventListener('click', () => {
             saveCurrentFile();
@@ -1756,30 +1386,18 @@
         });
 
         window.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'Enter') {
-                e.preventDefault();
-                compileProject();
-                return;
-            }
-            if (e.altKey && e.code === 'KeyN') {
-                e.preventDefault();
-                openNewFileModal();
-                return;
-            }
+            if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); compileProject(); return; }
+            if (e.altKey && e.code === 'KeyN') { e.preventDefault(); openNewFileModal(); return; }
             bindUndoRedo(e);
         });
-
         window.addEventListener('resize', () => updateEditorUI());
-
         window.addEventListener('beforeunload', () => {
             saveCurrentFile();
             persistState();
         });
     }
 
-    // UYGULAMAYI BAŞLAT
     window.addEventListener('DOMContentLoaded', initApp);
-
     </script>
 </body>
 </html>
