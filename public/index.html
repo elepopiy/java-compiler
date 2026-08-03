@@ -639,6 +639,7 @@
             outputType: 'multi',
             outputExt: '.class',
             outputSub: 'Java Bytecode (JVM)',
+            runnableOnServer: true,
             keywords: ['public','private','protected','class','interface','static','void','int','long','short','byte','double','float','boolean','char','String','new','return','if','else','for','while','do','try','catch','finally','throw','throws','import','package','extends','implements','this','super','true','false','null','switch','case','break','continue','default','enum','final','abstract','synchronized'],
             formatName: (raw) => raw.charAt(0).toUpperCase() + raw.slice(1),
             template: (name) => `public class ${name} {\n    \n    public ${name}() {\n        // Kurucu metot\n    }\n    \n}`,
@@ -652,16 +653,17 @@
             brandTitle: 'CodeStudio Orbit', brandSub: 'Deep Space C Environment',
             brandIcon: 'fa-solid fa-satellite', fileIcon: 'fa-solid fa-file-code',
             filesHeaderLabel: 'Kaynak Dosyalar',
-            compileCmd: 'gcc -Wall -o app *.c',
+            compileCmd: 'x86_64-w64-mingw32-gcc -Wall -O2 -static -o app.exe *.c',
             mainRegex: /int\s+main\s*\(/,
             mainErr: "HATA: Projede 'int main(void)' fonksiyonuna sahip bir giriş noktası bulunamadı. Bağlantı (link) yapılamaz.",
             newFileLabel: 'Dosya Adı (File Name)',
             newFilePlaceholder: 'Örn: utils, vector, engine...',
             modalTitle: 'Yeni C Kaynak Dosyası Oluştur',
-            emptyBuildText: 'Henüz derlenmiş çıktı yok.<br>Projeyi derlediğinde native<br>ikili dosya burada belirecek.',
+            emptyBuildText: 'Henüz derlenmiş çıktı yok.<br>Projeyi derlediğinde gerçek<br><b>Windows .exe</b> dosyası burada belirecek.',
             outputType: 'single',
-            outputExt: '',
-            outputSub: 'Native Binary (ELF x86-64)',
+            outputExt: '.exe',
+            outputSub: 'Windows Executable (PE32+ x86-64)',
+            runnableOnServer: false,
             keywords: ['int','long','short','char','float','double','void','signed','unsigned','struct','union','enum','typedef','const','static','extern','volatile','register','sizeof','return','if','else','for','while','do','switch','case','break','continue','default','goto','NULL'],
             formatName: (raw) => raw.toLowerCase(),
             template: (name) => `#include <stdio.h>\n\nvoid ${name}(void) {\n    printf("${name} çalışıyor...\\n");\n}\n`,
@@ -675,16 +677,17 @@
             brandTitle: 'CodeStudio Nebula', brandSub: 'Deep Space C++ Environment',
             brandIcon: 'fa-brands fa-cuttlefish', fileIcon: 'fa-solid fa-file-code',
             filesHeaderLabel: 'Kaynak Dosyalar',
-            compileCmd: 'g++ -std=c++17 -Wall -o app *.cpp',
+            compileCmd: 'x86_64-w64-mingw32-g++ -std=c++17 -Wall -O2 -static -o app.exe *.cpp',
             mainRegex: /int\s+main\s*\(/,
             mainErr: "HATA: Projede 'int main()' fonksiyonuna sahip bir giriş noktası bulunamadı. Bağlantı (link) yapılamaz.",
             newFileLabel: 'Dosya Adı (File Name)',
             newFilePlaceholder: 'Örn: Utils, Vector, Engine...',
             modalTitle: 'Yeni C++ Kaynak Dosyası Oluştur',
-            emptyBuildText: 'Henüz derlenmiş çıktı yok.<br>Projeyi derlediğinde native<br>ikili dosya burada belirecek.',
+            emptyBuildText: 'Henüz derlenmiş çıktı yok.<br>Projeyi derlediğinde gerçek<br><b>Windows .exe</b> dosyası burada belirecek.',
             outputType: 'single',
-            outputExt: '',
-            outputSub: 'Native Binary (ELF x86-64)',
+            outputExt: '.exe',
+            outputSub: 'Windows Executable (PE32+ x86-64)',
+            runnableOnServer: false,
             keywords: ['int','long','short','char','float','double','void','bool','auto','class','struct','union','enum','typedef','template','typename','const','constexpr','static','extern','volatile','virtual','override','public','private','protected','namespace','using','new','delete','return','if','else','for','while','do','switch','case','break','continue','default','try','catch','throw','true','false','nullptr','this'],
             formatName: (raw) => raw.charAt(0).toUpperCase() + raw.slice(1),
             template: (name) => `#include <iostream>\n\nclass ${name} {\npublic:\n    void run() {\n        std::cout << "${name} calisiyor..." << std::endl;\n    }\n};\n`,
@@ -801,6 +804,12 @@
 
     // Bul durumu
     const FindState = { matches: [], index: -1, term: '' };
+
+    // IME / tahmine dayalı klavye (mobil, Türkçe klavye vb.) kompozisyon durumu.
+    // Kompozisyon sırasında (compositionstart -> compositionend) özel tuş
+    // yakalayıcımız devre dışı bırakılır; aksi halde "#include" gibi kelimeler
+    // klavye tahmini sırasında karışabiliyordu (örn. "#inodetdtudlude").
+    let isComposing = false;
 
     // ---------------------------------------------------------------------
     // 4. BAŞLATICI (INITIALIZATION)
@@ -1139,6 +1148,8 @@
                 language: data.language,
                 entryPoint: data.entryPoint,
                 canRun: data.canRun,
+                hasEntryPoint: data.hasEntryPoint,
+                runnableOnServer: data.runnableOnServer,
                 compiledFiles: data.compiledFiles
             };
             renderCompiledPanel();
@@ -1148,8 +1159,10 @@
             DOM.compilerStatus.style.background = 'var(--status-success-bg)';
             showToast('Proje başarıyla derlendi!', 'success');
 
-            if (data.canRun) {
+            if (data.canRun && cfg.runnableOnServer) {
                 await runCompiledProgram();
+            } else if (data.canRun && !cfg.runnableOnServer) {
+                logConsole('info', `[Bilgi] app.exe gerçek bir Windows (PE32+) çalıştırılabilir dosyasıdır. Sunucu Linux üzerinde çalıştığı için burada çalıştırılamaz — dosyayı indirip kendi Windows bilgisayarınızda çalıştırabilirsiniz.`);
             } else {
                 logConsole('warn', cfg.mainErr);
             }
@@ -1380,6 +1393,10 @@
     }
 
     function handleEditorKeydown(e) {
+        // Kompozisyon devam ediyorsa (tahmine dayalı klavye / IME) hiçbir şeye
+        // dokunma — native davranışa bırak, yoksa metin karışır.
+        if (isComposing || e.isComposing || e.keyCode === 229) return;
+
         const el = DOM.codeEditor;
         const start = el.selectionStart;
         const end = el.selectionEnd;
@@ -1601,6 +1618,12 @@
     // ---------------------------------------------------------------------
     function setupEventListeners() {
         DOM.codeEditor.addEventListener('input', updateEditorUI);
+
+        DOM.codeEditor.addEventListener('compositionstart', () => { isComposing = true; });
+        DOM.codeEditor.addEventListener('compositionend', () => {
+            isComposing = false;
+            updateEditorUI();
+        });
 
         DOM.codeWrapper.addEventListener('scroll', () => {
             DOM.lineNumbers.style.top = `-${DOM.codeWrapper.scrollTop}px`;
