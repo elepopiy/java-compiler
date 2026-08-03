@@ -3,44 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeStudio ☕ | Multi-File Java Compiler</title>
+    <title>CodeStudio ☕ | Multi-File Java Compiler (Pro Edition)</title>
+    
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* ==========================================================================
+           1. CSS DEĞİŞKENLERİ (TEMA VE ANİMASYON AYARLARI)
+           ========================================================================== */
         :root {
-            --bg-dark: #120c09;
+            /* Renk Paleti */
+            --bg-dark: #0f0a08;
             --panel-bg: #1c1410;
-            --sidebar-bg: #160f0c;
+            --sidebar-bg: #150f0c;
             --editor-bg: #18110e;
-            --card-bg: #251b15;
+            --card-bg: #221813;
             
+            /* Vurgu Renkleri */
             --accent-coffee: #d49b54;
-            --accent-coffee-hover: #e5ad67;
+            --accent-coffee-hover: #e8b069;
             --accent-warm: #c86d3b;
+            --accent-glow: rgba(212, 155, 84, 0.2);
             
-            --text-primary: #f3e9e3;
-            --text-secondary: #b3a296;
-            --text-muted: #736256;
+            /* Metin Renkleri */
+            --text-primary: #f5ebe6;
+            --text-secondary: #c2b2a5;
+            --text-muted: #857365;
             
-            --border-color: #33241c;
-            --border-active: #54392a;
+            /* Sınır ve Çizgi Renkleri */
+            --border-color: #38281f;
+            --border-light: #4a362a;
+            --border-active: #d49b54;
             
-            --status-success: #4ea863;
-            --status-error: #d9534f;
+            /* Durum Renkleri */
+            --status-success: #55b96d;
+            --status-success-bg: rgba(85, 185, 109, 0.15);
+            --status-error: #e85d58;
+            --status-error-bg: rgba(232, 93, 88, 0.15);
+            --status-info: #54a5d4;
             
+            /* Boyutlandırma ve Kenar Kıvrımları */
             --radius-sm: 6px;
             --radius-md: 10px;
             --radius-lg: 16px;
+            --header-height: 64px;
             
+            /* Tipografi */
             --font-main: 'Plus Jakarta Sans', sans-serif;
             --font-code: 'Fira Code', monospace;
+
+            /* Syntax Highlighting Renkleri */
+            --sh-keyword: #c86d3b;
+            --sh-string: #88b369;
+            --sh-comment: #736256;
+            --sh-class: #e8b069;
+            --sh-method: #54a5d4;
+            --sh-number: #d47d54;
+            
+            /* Animasyon Zamanlamaları */
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
+        /* ==========================================================================
+           2. SIFIRLAMA VE GENEL YAPILANDIRMA
+           ========================================================================== */
         * {
             margin: 0;
             padding: 0;
@@ -54,166 +88,327 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow: hidden; /* Dış kaydırmayı tamamen engeller */
         }
 
-        /* HEADER */
+        /* Özel Scrollbar (Kaydırma Çubuğu) Tasarımı */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 5px;
+            border: 2px solid var(--sidebar-bg);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* Seçim Rengi */
+        ::selection {
+            background: rgba(212, 155, 84, 0.3);
+            color: #fff;
+        }
+
+        /* ==========================================================================
+           3. ANİMASYON KEYFRAMES
+           ========================================================================== */
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        @keyframes slideInRight {
+            0% { opacity: 0; transform: translateX(20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideOutLeft {
+            0% { opacity: 1; transform: translateX(0); height: 45px; margin-bottom: 6px; }
+            100% { opacity: 0; transform: translateX(-30px); height: 0; margin-bottom: 0; padding: 0; border: 0; }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(212, 155, 84, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(212, 155, 84, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(212, 155, 84, 0); }
+        }
+
+        @keyframes steamRise {
+            0% { transform: translateY(0) scaleX(1); opacity: 0.8; }
+            50% { transform: translateY(-3px) scaleX(1.1); opacity: 1; }
+            100% { transform: translateY(0) scaleX(1); opacity: 0.8; }
+        }
+
+        @keyframes slideDownToast {
+            0% { opacity: 0; transform: translate(-50%, -20px); }
+            10% { opacity: 1; transform: translate(-50%, 20px); }
+            90% { opacity: 1; transform: translate(-50%, 20px); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+        }
+
+        /* ==========================================================================
+           4. ÜST BİLGİ (HEADER)
+           ========================================================================== */
         header {
-            height: 60px;
+            height: var(--header-height);
             background-color: var(--sidebar-bg);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 20px;
-            z-index: 10;
+            padding: 0 24px;
+            z-index: 20;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
 
         .brand {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
+            cursor: pointer;
+            transition: var(--transition-normal);
+        }
+        
+        .brand:hover {
+            transform: translateY(-1px);
         }
 
         .brand i.fa-mug-hot {
-            font-size: 24px;
+            font-size: 26px;
             color: var(--accent-coffee);
-            filter: drop-shadow(0 0 8px rgba(212, 155, 84, 0.4));
+            filter: drop-shadow(0 0 10px var(--accent-glow));
+            animation: steamRise 3s infinite ease-in-out;
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .brand-text h1 {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             letter-spacing: 0.5px;
-            background: linear-gradient(135deg, #f3e9e3 0%, var(--accent-coffee) 100%);
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent-coffee) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            line-height: 1.2;
         }
 
         .brand-text span {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 500;
-            letter-spacing: 1px;
+            font-size: 10px;
+            color: var(--accent-coffee);
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
         }
 
         .btn-compile {
             background: linear-gradient(135deg, var(--accent-coffee) 0%, var(--accent-warm) 100%);
             color: #fff;
             border: none;
-            padding: 10px 22px;
+            padding: 10px 24px;
             border-radius: var(--radius-md);
             font-family: var(--font-main);
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(212, 155, 84, 0.25);
+            gap: 10px;
+            transition: var(--transition-normal);
+            box-shadow: 0 4px 15px rgba(212, 155, 84, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-compile::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-20deg);
+            transition: 0.5s;
         }
 
         .btn-compile:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(212, 155, 84, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 155, 84, 0.4);
             background: linear-gradient(135deg, var(--accent-coffee-hover) 0%, var(--accent-warm) 100%);
+        }
+
+        .btn-compile:hover::after {
+            left: 150%;
+        }
+
+        .btn-compile:active {
+            transform: translateY(1px);
         }
 
         .btn-compile:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
+            background: var(--border-color);
+            color: var(--text-muted);
         }
 
-        /* MAIN APP LAYOUT */
+        /* ==========================================================================
+           5. ANA YAPI (APP CONTAINER & SIDEBAR)
+           ========================================================================== */
         .app-container {
             display: flex;
             flex: 1;
-            height: calc(100vh - 60px);
+            height: calc(100vh - var(--header-height));
             overflow: hidden;
+            position: relative;
         }
 
-        /* LEFT SIDEBAR */
         .sidebar {
             width: 320px;
+            min-width: 320px;
             background-color: var(--sidebar-bg);
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             user-select: none;
+            transition: var(--transition-normal);
+            z-index: 10;
         }
 
         .sidebar-section {
             display: flex;
             flex-direction: column;
             border-bottom: 1px solid var(--border-color);
+            max-height: 50%; /* Dinamik yükseklik ayarı */
         }
 
         .sidebar-header {
-            padding: 14px 16px;
+            padding: 16px 20px;
             font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.2px;
             color: var(--accent-coffee);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background-color: rgba(212, 155, 84, 0.03);
+            background-color: rgba(212, 155, 84, 0.02);
+            backdrop-filter: blur(4px);
+            position: sticky;
+            top: 0;
+            z-index: 2;
         }
 
-        .btn-add-file {
+        .btn-icon {
             background: transparent;
-            border: 1px dashed var(--accent-coffee);
-            color: var(--accent-coffee);
-            width: 26px;
-            height: 26px;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            width: 28px;
+            height: 28px;
             border-radius: var(--radius-sm);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
+            transition: var(--transition-fast);
+        }
+
+        .btn-add-file {
+            border: 1px dashed var(--accent-coffee);
+            color: var(--accent-coffee);
         }
 
         .btn-add-file:hover {
-            background: rgba(212, 155, 84, 0.15);
+            background: var(--accent-glow);
             border-style: solid;
+            transform: rotate(90deg);
         }
 
+        /* Dosya Listesi (Buga Girmeyen Scroll) */
         .source-files-list {
-            padding: 8px 12px;
-            max-height: 180px;
+            padding: 12px;
             overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
         .source-file-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 8px 12px;
-            margin-bottom: 4px;
+            padding: 10px 14px;
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius-md);
             cursor: pointer;
             font-family: var(--font-code);
-            font-size: 13px;
+            font-size: 13.5px;
             color: var(--text-secondary);
-            transition: all 0.2s ease;
+            transition: var(--transition-normal);
+            animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .source-file-item::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0; width: 3px;
+            background-color: transparent;
+            transition: var(--transition-normal);
+        }
+
+        .source-file-item:hover {
+            border-color: var(--border-light);
+            background-color: rgba(255, 255, 255, 0.02);
+            transform: translateX(4px);
         }
 
         .source-file-item.active {
-            border-color: var(--accent-coffee);
-            background-color: rgba(212, 155, 84, 0.1);
+            border-color: var(--border-active);
+            background-color: rgba(212, 155, 84, 0.08);
             color: var(--accent-coffee);
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .source-file-item.active::before {
+            background-color: var(--accent-coffee);
+        }
+
+        .source-file-item.removing {
+            animation: slideOutLeft 0.3s forwards;
+            pointer-events: none;
         }
 
         .file-info {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-info i {
+            font-size: 16px;
+            transition: var(--transition-fast);
+        }
+
+        .source-file-item.active .file-info i {
+            color: var(--accent-coffee);
+            transform: scale(1.1);
         }
 
         .btn-delete-file {
@@ -221,19 +416,32 @@
             background: none;
             border: none;
             cursor: pointer;
-            padding: 2px 4px;
+            padding: 6px;
+            border-radius: 4px;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.5;
+        }
+
+        .source-file-item:hover .btn-delete-file {
+            opacity: 1;
         }
 
         .btn-delete-file:hover {
             color: var(--status-error);
+            background-color: var(--status-error-bg);
+            transform: scale(1.1);
         }
 
-        /* COMPILED DOWNLOADS SECTION */
+        /* Derlenmiş Dosyalar */
         .compiled-section {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            background-color: var(--sidebar-bg);
         }
 
         .compiled-list {
@@ -249,61 +457,71 @@
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: 12px 14px;
+            padding: 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            animation: fadeIn 0.3s ease-in-out;
+            animation: fadeInScale 0.4s var(--transition-bounce) forwards;
+            transition: var(--transition-fast);
         }
 
         .compiled-item:hover {
-            border-color: var(--accent-coffee);
+            border-color: var(--status-success);
+            box-shadow: 0 4px 12px rgba(85, 185, 109, 0.1);
+            transform: translateY(-2px);
         }
 
         .compiled-item-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .compiled-item-info i {
             color: var(--status-success);
-            font-size: 18px;
+            font-size: 22px;
+            background: var(--status-success-bg);
+            padding: 8px;
+            border-radius: 8px;
         }
 
         .compiled-name {
             font-family: var(--font-code);
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 13.5px;
+            font-weight: 600;
             color: var(--text-primary);
+            margin-bottom: 4px;
         }
 
         .compiled-sub {
             font-size: 11px;
             color: var(--text-muted);
+            font-weight: 500;
         }
 
         .btn-download {
-            background-color: rgba(78, 168, 99, 0.15);
+            background-color: var(--status-success-bg);
             color: var(--status-success);
-            border: 1px solid rgba(78, 168, 99, 0.3);
-            padding: 6px 12px;
+            border: 1px solid rgba(85, 185, 109, 0.3);
+            padding: 8px 14px;
             border-radius: var(--radius-sm);
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
+            gap: 8px;
+            transition: var(--transition-fast);
         }
 
         .btn-download:hover {
             background-color: var(--status-success);
             color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(85, 185, 109, 0.3);
         }
 
-        .empty-downloads {
+        .empty-state {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -311,147 +529,275 @@
             padding: 40px 20px;
             text-align: center;
             color: var(--text-muted);
-            gap: 12px;
+            gap: 16px;
+            height: 100%;
+            animation: fadeInScale 0.5s ease;
         }
 
-        .empty-downloads i {
-            font-size: 36px;
-            opacity: 0.4;
+        .empty-state i {
+            font-size: 42px;
+            opacity: 0.3;
+            color: var(--accent-coffee);
         }
 
-        /* RIGHT EDITOR AREA */
+        .empty-state p {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* ==========================================================================
+           6. SAĞ BÖLÜM (EDİTÖR VE KONSOL)
+           ========================================================================== */
         .main-editor-area {
             flex: 1;
             display: flex;
             flex-direction: column;
             background-color: var(--editor-bg);
             overflow: hidden;
+            position: relative;
         }
 
+        /* Sekmeler (Tabs) - Kusursuz Yatay Kaydırma */
         .editor-tabs {
-            height: 42px;
-            background-color: var(--sidebar-bg);
+            height: 46px;
+            min-height: 46px;
+            background-color: var(--panel-bg);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             overflow-x: auto;
+            overflow-y: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .editor-tabs::-webkit-scrollbar {
+            height: 4px;
         }
 
         .tab-item {
             height: 100%;
-            padding: 0 16px;
+            padding: 0 20px;
             display: flex;
             align-items: center;
             gap: 10px;
             border-right: 1px solid var(--border-color);
-            font-family: var(--font-code);
+            font-family: var(--font-main);
+            font-weight: 500;
             font-size: 13px;
             color: var(--text-secondary);
             cursor: pointer;
             user-select: none;
             position: relative;
+            transition: var(--transition-fast);
+            background-color: rgba(0,0,0,0.1);
+            white-space: nowrap;
+        }
+
+        .tab-item:hover {
+            background-color: var(--editor-bg);
+            color: var(--text-primary);
         }
 
         .tab-item.active {
             background-color: var(--editor-bg);
             color: var(--accent-coffee);
-            font-weight: 500;
+            font-weight: 700;
+        }
+
+        .tab-item::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background-color: transparent;
+            transition: var(--transition-fast);
         }
 
         .tab-item.active::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
             background-color: var(--accent-coffee);
+            box-shadow: 0 2px 10px var(--accent-glow);
         }
 
-        .editor-wrapper {
+        .tab-item .btn-delete-file {
+            opacity: 0;
+            margin-left: 4px;
+            padding: 4px;
+        }
+
+        .tab-item:hover .btn-delete-file,
+        .tab-item.active .btn-delete-file {
+            opacity: 1;
+        }
+
+        /* 
+           GERÇEK ZAMANLI EDİTÖR ALANI 
+           Scroll Bug'ını önlemek için: 
+           Dış container relative, içindeki katmanlar absolute. 
+           Textarea şeffaf, pre/code arkada renklendiriliyor.
+        */
+        .editor-container {
             flex: 1;
-            position: relative;
             display: flex;
-        }
-
-        .line-numbers {
-            width: 48px;
-            background-color: rgba(0, 0, 0, 0.2);
-            border-right: 1px solid var(--border-color);
-            padding: 16px 0;
-            font-family: var(--font-code);
-            font-size: 13px;
-            color: var(--text-muted);
-            text-align: right;
-            padding-right: 12px;
-            line-height: 1.6;
-            user-select: none;
+            position: relative;
+            background-color: var(--editor-bg);
             overflow: hidden;
         }
 
-        .code-textarea {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: var(--text-primary);
-            font-family: var(--font-code);
-            font-size: 13px;
-            line-height: 1.6;
-            padding: 16px;
-            resize: none;
-            white-space: pre;
-            tab-size: 4;
+        .line-numbers-container {
+            width: 50px;
+            min-width: 50px;
+            background-color: var(--panel-bg);
+            border-right: 1px solid var(--border-color);
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
         }
 
-        /* CONSOLE PANEL */
+        .line-numbers {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            padding: 16px 0;
+            font-family: var(--font-code);
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-muted);
+            text-align: right;
+            padding-right: 14px;
+            user-select: none;
+        }
+
+        .code-area-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: auto; /* Ana scroll burada */
+            background: transparent;
+        }
+
+        /* Highlighting (Pre) ve Textarea (Input) aynı boyutta ve fontta olmalı */
+        .code-highlight, .code-input {
+            margin: 0;
+            padding: 16px;
+            font-family: var(--font-code);
+            font-size: 14px;
+            line-height: 1.6;
+            tab-size: 4;
+            white-space: pre;
+            word-wrap: normal;
+            border: none;
+            outline: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            min-width: 100%;
+            min-height: 100%;
+        }
+
+        /* Arkadaki renklendirilmiş kod */
+        .code-highlight {
+            color: var(--text-primary);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Öndeki yazım alanı (Metinler şeffaf, imleç görünür) */
+        .code-input {
+            color: transparent;
+            background: transparent;
+            caret-color: #fff; /* İmleç rengi */
+            z-index: 1;
+            resize: none;
+            overflow: hidden; /* Container scroll edeceği için bu gizli */
+        }
+
+        /* Syntax Highlight Renkleri */
+        .sh-keyword { color: var(--sh-keyword); font-weight: 600; }
+        .sh-string { color: var(--sh-string); }
+        .sh-comment { color: var(--sh-comment); font-style: italic; }
+        .sh-class { color: var(--sh-class); font-weight: 600; }
+        .sh-method { color: var(--sh-method); }
+        .sh-number { color: var(--sh-number); }
+
+        /* Konsol Paneli */
         .console-panel {
-            height: 200px;
-            background-color: #0d0806;
+            height: 240px; /* Biraz daha geniş */
+            background-color: #080504; /* Daha koyu terminal havası */
             border-top: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
+            z-index: 5;
+            transition: height 0.3s ease;
         }
 
         .console-header {
-            height: 36px;
+            height: 40px;
+            min-height: 40px;
             background-color: var(--panel-bg);
             border-bottom: 1px solid var(--border-color);
-            padding: 0 16px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 0 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 1px;
             color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .console-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-coffee);
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(212, 155, 84, 0.1);
         }
 
         .console-output {
             flex: 1;
-            padding: 12px 16px;
+            padding: 16px 20px;
             font-family: var(--font-code);
-            font-size: 12px;
-            line-height: 1.5;
+            font-size: 13px;
+            line-height: 1.6;
             overflow-y: auto;
             color: #d1c7bd;
+            scroll-behavior: smooth;
+        }
+
+        .console-msg {
+            margin-bottom: 6px;
+            animation: slideInRight 0.3s ease-out forwards;
+            word-break: break-all;
         }
 
         .console-msg.success { color: var(--status-success); }
-        .console-msg.error { color: var(--status-error); }
-        .console-msg.info { color: var(--accent-coffee); }
+        .console-msg.error { color: var(--status-error); border-left: 3px solid var(--status-error); padding-left: 10px;}
+        .console-msg.info { color: var(--status-info); }
+        .console-msg.warn { color: var(--accent-coffee); }
+        
+        .console-msg .timestamp {
+            color: var(--text-muted);
+            margin-right: 10px;
+            font-size: 11px;
+        }
 
-        /* MODAL */
+        /* ==========================================================================
+           7. MODAL (POPUP) TASARIMI
+           ========================================================================== */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 100;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.2s ease;
+            transition: opacity 0.3s ease;
         }
 
         .modal-overlay.active {
@@ -461,378 +807,773 @@
 
         .modal {
             background: var(--panel-bg);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-light);
             border-radius: var(--radius-lg);
-            width: 360px;
-            padding: 24px;
+            width: 400px;
+            padding: 30px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
+            transform: scale(0.9) translateY(20px);
+            opacity: 0;
+            transition: transform 0.4s var(--transition-bounce), opacity 0.3s ease;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-primary);
+        }
+
+        .modal-header i {
+            font-size: 24px;
+            color: var(--accent-coffee);
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
         }
 
         .modal input {
             background: var(--editor-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 10px 14px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
             color: var(--text-primary);
             font-family: var(--font-code);
+            font-size: 14px;
             outline: none;
+            transition: var(--transition-fast);
+        }
+
+        .modal input:focus {
+            border-color: var(--accent-coffee);
+            box-shadow: 0 0 0 3px rgba(212, 155, 84, 0.1);
+        }
+
+        .modal input::placeholder {
+            color: var(--text-muted);
         }
 
         .modal-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 8px;
+            gap: 12px;
+            margin-top: 10px;
         }
 
         .btn-modal {
-            padding: 8px 16px;
+            padding: 10px 20px;
             border-radius: var(--radius-sm);
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 700;
             cursor: pointer;
             border: none;
+            transition: var(--transition-fast);
+            font-family: var(--font-main);
         }
 
-        .btn-cancel { background: transparent; color: var(--text-secondary); }
-        .btn-confirm { background: var(--accent-coffee); color: #fff; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
+        .btn-cancel { 
+            background: transparent; 
+            color: var(--text-secondary); 
+            border: 1px solid var(--border-color);
         }
+        .btn-cancel:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+        }
+
+        .btn-confirm { 
+            background: var(--accent-coffee); 
+            color: #fff; 
+            box-shadow: 0 4px 10px rgba(212, 155, 84, 0.2);
+        }
+        .btn-confirm:hover {
+            background: var(--accent-coffee-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(212, 155, 84, 0.3);
+        }
+
+        /* Toast Notification (Hata/Başarı Mesajları için) */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: slideDownToast 3s ease-in-out forwards;
+        }
+        
+        .toast.error { border-color: var(--status-error); }
+        .toast.error i { color: var(--status-error); }
+        .toast.success { border-color: var(--status-success); }
+        .toast.success i { color: var(--status-success); }
+
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
+    <!-- BİLDİRİM (TOAST) KONTEYNERİ -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ÜST BİLGİ (HEADER) -->
     <header>
-        <div class="brand">
+        <div class="brand" onclick="logConsole('info', 'CodeStudio Pro sürümüne hoş geldiniz!')">
             <i class="fa-solid fa-mug-hot"></i>
             <div class="brand-text">
-                <h1>CodeStudio</h1>
-                <span>BY CODESTUDIO</span>
+                <h1>CodeStudio Pro</h1>
+                <span>Advanced Java Environment</span>
             </div>
         </div>
-        <button class="btn-compile" id="compileBtn">
+        <button class="btn-compile" id="compileBtn" title="Tüm projeyi derle (Ctrl+Enter)">
             <i class="fa-solid fa-play"></i>
             <span>Kodu Derle</span>
         </button>
     </header>
 
-    <!-- APP CONTAINER -->
+    <!-- ANA YAPI -->
     <div class="app-container">
         
-        <!-- LEFT SIDEBAR -->
+        <!-- SOL YAN ÇUBUK (SIDEBAR) -->
         <div class="sidebar">
-            <div class="sidebar-section">
+            
+            <!-- Java Dosyaları Bölümü -->
+            <div class="sidebar-section" style="flex: 1;">
                 <div class="sidebar-header">
-                    <span><i class="fa-solid fa-folder-tree" style="margin-right: 6px;"></i> Java Dosyaları</span>
-                    <button class="btn-add-file" id="addFileBtn" title="Yeni .java Dosyası Ekle">
+                    <span><i class="fa-solid fa-folder-tree" style="margin-right: 8px;"></i> Proje Dosyaları</span>
+                    <button class="btn-icon btn-add-file" id="addFileBtn" title="Yeni Sınıf Ekle (Alt+N)">
                         <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
-                <div class="source-files-list" id="sourceFilesList"></div>
+                <div class="source-files-list" id="sourceFilesList">
+                    <!-- Dosyalar JS ile buraya yüklenecek -->
+                </div>
             </div>
 
-            <!-- DERLENMİŞ DOSYALAR BÖLÜMÜ -->
-            <div class="compiled-section">
+            <!-- Derlenmiş (.class) Dosyalar Bölümü -->
+            <div class="sidebar-section" style="flex: 1; border-top: 1px solid var(--border-color); border-bottom: none;">
                 <div class="sidebar-header">
-                    <span><i class="fa-solid fa-cube" style="margin-right: 6px;"></i> Derlenmiş (.class) Dosyalar</span>
+                    <span><i class="fa-solid fa-cubes" style="margin-right: 8px;"></i> Derlenenler (Build)</span>
                 </div>
                 <div class="compiled-list" id="compiledList">
-                    <div class="empty-downloads">
-                        <i class="fa-solid fa-mug-saucer"></i>
-                        <p>Henüz derlenmiş dosya yok.<br>Kodu derlediğinde <b>.class</b> dosyaların burada belirecek.</p>
+                    <div class="empty-state">
+                        <i class="fa-solid fa-box-open"></i>
+                        <p>Henüz derlenmiş dosya yok.<br>Projeyi derlediğinde <b>.class</b><br>çıktıları burada belirecek.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- MAIN EDITOR AREA -->
+        <!-- SAĞ EDİTÖR ALANI -->
         <div class="main-editor-area">
-            <div class="editor-tabs" id="editorTabs"></div>
-
-            <div class="editor-wrapper">
-                <div class="line-numbers" id="lineNumbers">1</div>
-                <textarea class="code-textarea" id="codeEditor" spellcheck="false" placeholder="// Java kodlarınızı buraya yazın..."></textarea>
+            
+            <!-- Editör Sekmeleri (Tabs) -->
+            <div class="editor-tabs" id="editorTabs">
+                <!-- Sekmeler JS ile buraya yüklenecek -->
             </div>
 
-            <!-- CONSOLE OUTPUT -->
+            <!-- Kusursuz Editör Konteyneri -->
+            <div class="editor-container">
+                <!-- Satır Numaraları -->
+                <div class="line-numbers-container">
+                    <div class="line-numbers" id="lineNumbers">1</div>
+                </div>
+                
+                <!-- Kod Alanı (Highlight + Input) -->
+                <div class="code-area-wrapper" id="codeWrapper">
+                    <!-- Renklendirme Katmanı (Arkada) -->
+                    <pre class="code-highlight" aria-hidden="true"><code id="codeHighlight"></code></pre>
+                    <!-- Kullanıcı Giriş Katmanı (Önde, Şeffaf) -->
+                    <textarea class="code-input" id="codeEditor" spellcheck="false" wrap="off"></textarea>
+                </div>
+            </div>
+
+            <!-- Konsol (Terminal) -->
             <div class="console-panel">
                 <div class="console-header">
-                    <span><i class="fa-solid fa-terminal" style="margin-right: 6px;"></i> Derleme Çıktısı & Konsol</span>
-                    <span id="compilerStatus" style="color: var(--accent-coffee);">Hazır ☕</span>
+                    <span><i class="fa-solid fa-terminal" style="margin-right: 8px;"></i> Terminal Çıktısı</span>
+                    <span class="console-status" id="compilerStatus">
+                        <i class="fa-solid fa-check-circle"></i> Hazır
+                    </span>
                 </div>
                 <div class="console-output" id="consoleOutput">
-                    <div class="console-msg info">[CodeStudio] Sistem hazır. .java dosyalarınızı yazıp "Kodu Derle" butonuna basabilirsiniz.</div>
+                    <!-- Konsol mesajları buraya düşecek -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- NEW FILE MODAL -->
+    <!-- YENİ DOSYA EKLEME MODALI -->
     <div class="modal-overlay" id="newFileModal">
         <div class="modal">
-            <h3 style="color: var(--text-primary); font-size: 16px;">Yeni Java Dosyası Ekle</h3>
-            <input type="text" id="newFileNameInput" placeholder="Örn: Helper (Sadece Sınıf Adı)">
+            <div class="modal-header">
+                <i class="fa-brands fa-java"></i>
+                <h3>Yeni Java Sınıfı Oluştur</h3>
+            </div>
+            <div class="input-group">
+                <label for="newFileNameInput">Sınıf Adı (Class Name)</label>
+                <input type="text" id="newFileNameInput" placeholder="Örn: Calculator, Utils, App..." autocomplete="off">
+            </div>
             <div class="modal-actions">
-                <button class="btn-modal btn-cancel" id="cancelModalBtn">İptal</button>
-                <button class="btn-modal btn-confirm" id="confirmModalBtn">Ekle</button>
+                <button class="btn-modal btn-cancel" id="cancelModalBtn">Vazgeç</button>
+                <button class="btn-modal btn-confirm" id="confirmModalBtn">Oluştur</button>
             </div>
         </div>
     </div>
 
+    <!-- UYGULAMA MANTIĞI (JAVASCRIPT) -->
     <script>
-        // Default State
-        let files = [
-            {
-                id: '1',
-                name: 'Main.java',
-                content: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("CodeStudio'ya Hoş Geldiniz! ☕");\n        \n        Helper helper = new Helper();\n        helper.sayCoffee();\n    }\n}`
-            },
-            {
-                id: '2',
-                name: 'Helper.java',
-                content: `public class Helper {\n    public void sayCoffee() {\n        System.out.println("Taze derlenmiş kahve kokulu Java kodları!");\n    }\n}`
-            }
-        ];
+        /**
+         * ==========================================================================
+         * CODESTUDIO PRO - JAVASCRIPT MOTORU
+         * Mimari: Modüler yapı, Olay dinleyicileri (Event Listeners), Regex Highlighting, 
+         * Mock Compiler (Gerçekçi Derleme Simülasyonu) ve Kusursuz Kaydırma Senkronizasyonu.
+         * ==========================================================================
+         */
 
-        let activeFileId = '1';
+        // 1. UYGULAMA DURUMU (STATE)
+        const State = {
+            files: [
+                {
+                    id: 'f_' + Date.now(),
+                    name: 'Main.java',
+                    content: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("CodeStudio Pro'ya Hoş Geldiniz! 🚀");\n        \n        CoffeeMachine machine = new CoffeeMachine();\n        machine.brew("Espresso");\n    }\n}`
+                },
+                {
+                    id: 'f_' + (Date.now() + 1),
+                    name: 'CoffeeMachine.java',
+                    content: `public class CoffeeMachine {\n    private int waterLevel = 100;\n\n    public void brew(String type) {\n        if (waterLevel > 0) {\n            System.out.println("Taze " + type + " hazırlanıyor...");\n            waterLevel -= 10;\n        } else {\n            System.out.println("Hata: Su bitti!");\n        }\n    }\n}`
+                }
+            ],
+            activeFileId: null,
+            isCompiling: false
+        };
 
-        // DOM Elements
-        const sourceFilesList = document.getElementById('sourceFilesList');
-        const editorTabs = document.getElementById('editorTabs');
-        const codeEditor = document.getElementById('codeEditor');
-        const lineNumbers = document.getElementById('lineNumbers');
-        const compileBtn = document.getElementById('compileBtn');
-        const compiledList = document.getElementById('compiledList');
-        const consoleOutput = document.getElementById('consoleOutput');
-        const compilerStatus = document.getElementById('compilerStatus');
-        
-        const addFileBtn = document.getElementById('addFileBtn');
-        const newFileModal = document.getElementById('newFileModal');
-        const newFileNameInput = document.getElementById('newFileNameInput');
-        const cancelModalBtn = document.getElementById('cancelModalBtn');
-        const confirmModalBtn = document.getElementById('confirmModalBtn');
+        State.activeFileId = State.files[0].id; // İlk dosyayı aktif yap
 
-        function init() {
-            renderSidebarFiles();
+        // 2. DOM ELEMENTLERİ ÖNBELLEĞİ
+        const DOM = {
+            sourceFilesList: document.getElementById('sourceFilesList'),
+            editorTabs: document.getElementById('editorTabs'),
+            codeEditor: document.getElementById('codeEditor'),
+            codeHighlight: document.getElementById('codeHighlight'),
+            codeWrapper: document.getElementById('codeWrapper'),
+            lineNumbers: document.getElementById('lineNumbers'),
+            compileBtn: document.getElementById('compileBtn'),
+            compiledList: document.getElementById('compiledList'),
+            consoleOutput: document.getElementById('consoleOutput'),
+            compilerStatus: document.getElementById('compilerStatus'),
+            addFileBtn: document.getElementById('addFileBtn'),
+            newFileModal: document.getElementById('newFileModal'),
+            newFileNameInput: document.getElementById('newFileNameInput'),
+            cancelModalBtn: document.getElementById('cancelModalBtn'),
+            confirmModalBtn: document.getElementById('confirmModalBtn'),
+            toastContainer: document.getElementById('toastContainer')
+        };
+
+        // 3. BAŞLATICI (INITIALIZATION)
+        function initApp() {
+            renderSidebar();
             renderTabs();
-            loadActiveFileContent();
-            updateLineNumbers();
+            loadActiveFile();
             setupEventListeners();
+            logConsole('info', '[Sistem] Java Geliştirme Ortamı Başlatıldı v2.0');
+            logConsole('info', '[Sistem] Çalışma alanı hazır. Kodlamaya başlayabilirsiniz.');
         }
 
-        function renderSidebarFiles() {
-            sourceFilesList.innerHTML = '';
-            files.forEach(file => {
+        // 4. ARAYÜZ (UI) RENDER FONKSİYONLARI
+        function renderSidebar() {
+            DOM.sourceFilesList.innerHTML = '';
+            
+            State.files.forEach(file => {
+                const isActive = file.id === State.activeFileId;
                 const item = document.createElement('div');
-                item.className = `source-file-item ${file.id === activeFileId ? 'active' : ''}`;
+                item.className = `source-file-item ${isActive ? 'active' : ''}`;
+                item.id = `sidebar_item_${file.id}`;
                 item.onclick = () => switchActiveFile(file.id);
+
+                const deleteBtnHtml = State.files.length > 1 
+                    ? `<button class="btn-delete-file" onclick="deleteFile(event, '${file.id}')" title="Dosyayı Sil"><i class="fa-solid fa-trash-can"></i></button>` 
+                    : '';
 
                 item.innerHTML = `
                     <div class="file-info">
-                        <i class="fa-regular fa-file-code" style="color: var(--accent-coffee);"></i>
+                        <i class="fa-brands fa-java"></i>
                         <span>${file.name}</span>
                     </div>
-                    ${files.length > 1 ? `<button class="btn-delete-file" onclick="deleteFile(event, '${file.id}')"><i class="fa-solid fa-xmark"></i></button>` : ''}
+                    ${deleteBtnHtml}
                 `;
-                sourceFilesList.appendChild(item);
+                DOM.sourceFilesList.appendChild(item);
             });
         }
 
         function renderTabs() {
-            editorTabs.innerHTML = '';
-            files.forEach(file => {
+            DOM.editorTabs.innerHTML = '';
+            
+            State.files.forEach(file => {
+                const isActive = file.id === State.activeFileId;
                 const tab = document.createElement('div');
-                tab.className = `tab-item ${file.id === activeFileId ? 'active' : ''}`;
+                tab.className = `tab-item ${isActive ? 'active' : ''}`;
+                tab.id = `tab_item_${file.id}`;
                 tab.onclick = () => switchActiveFile(file.id);
 
+                const deleteBtnHtml = State.files.length > 1 
+                    ? `<i class="fa-solid fa-xmark btn-delete-file" onclick="deleteFile(event, '${file.id}')" title="Kapat"></i>` 
+                    : '';
+
                 tab.innerHTML = `
-                    <i class="fa-solid fa-mug-hot" style="font-size: 11px;"></i>
-                    <span>${file.name}</span>
-                    ${files.length > 1 ? `<i class="fa-solid fa-xmark btn-delete-file" style="margin-left:6px;" onclick="deleteFile(event, '${file.id}')"></i>` : ''}
+                    <i class="fa-brands fa-java" style="font-size: 14px; margin-right: 4px; color: ${isActive ? 'var(--accent-coffee)' : 'inherit'}"></i>
+                    ${file.name}
+                    ${deleteBtnHtml}
                 `;
-                editorTabs.appendChild(tab);
+                DOM.editorTabs.appendChild(tab);
             });
+
+            // Aktif sekmeye otomatik kaydır
+            const activeTab = document.getElementById(`tab_item_${State.activeFileId}`);
+            if (activeTab) {
+                activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
         }
 
+        // 5. EDİTÖR İŞLEMLERİ VE SYNTAX HIGHLIGHTING (Kusursuz Kaydırma Mantığı)
         function switchActiveFile(id) {
-            saveCurrentEditorContent();
-            activeFileId = id;
-            renderSidebarFiles();
-            renderTabs();
-            loadActiveFileContent();
-            updateLineNumbers();
+            if (State.activeFileId === id) return;
+            saveCurrentFile();
+            State.activeFileId = id;
+            
+            // UI Güncelleme (Hepsini baştan çizmek yerine class'ları değiştirerek performansı artırıyoruz)
+            document.querySelectorAll('.source-file-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+            
+            const sideItem = document.getElementById(`sidebar_item_${id}`);
+            const tabItem = document.getElementById(`tab_item_${id}`);
+            if (sideItem) sideItem.classList.add('active');
+            if (tabItem) {
+                tabItem.classList.add('active');
+                tabItem.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+            }
+
+            loadActiveFile();
         }
 
-        function saveCurrentEditorContent() {
-            const currentFile = files.find(f => f.id === activeFileId);
-            if (currentFile) currentFile.content = codeEditor.value;
+        function saveCurrentFile() {
+            const activeFile = State.files.find(f => f.id === State.activeFileId);
+            if (activeFile) {
+                activeFile.content = DOM.codeEditor.value;
+            }
         }
 
-        function loadActiveFileContent() {
-            const currentFile = files.find(f => f.id === activeFileId);
-            if (currentFile) codeEditor.value = currentFile.content;
+        function loadActiveFile() {
+            const activeFile = State.files.find(f => f.id === State.activeFileId);
+            if (activeFile) {
+                DOM.codeEditor.value = activeFile.content;
+                updateEditorUI();
+            }
         }
 
-        function updateLineNumbers() {
-            const lines = codeEditor.value.split('\n').length;
-            let numbersHtml = '';
-            for (let i = 1; i <= lines; i++) numbersHtml += i + '<br>';
-            lineNumbers.innerHTML = numbersHtml;
+        function updateEditorUI() {
+            const code = DOM.codeEditor.value;
+            
+            // 1. Syntax Highlighting Güncelle
+            DOM.codeHighlight.innerHTML = applySyntaxHighlighting(code);
+            
+            // 2. Textarea yüksekliğini içeriğe göre ayarla (Scroll senkronu için kritik)
+            // Önce boyutları resetle, sonra scrollHeight'a göre ayarla
+            DOM.codeEditor.style.height = 'auto';
+            DOM.codeHighlight.parentElement.style.height = 'auto';
+            
+            const newHeight = DOM.codeEditor.scrollHeight + 'px';
+            DOM.codeEditor.style.height = newHeight;
+            DOM.codeHighlight.parentElement.style.height = newHeight;
+
+            // 3. Satır Numaralarını Güncelle
+            const lineCount = code.split('\n').length;
+            let linesHtml = '';
+            for (let i = 1; i <= lineCount; i++) {
+                linesHtml += i + '<br>';
+            }
+            DOM.lineNumbers.innerHTML = linesHtml;
         }
 
-        function addNewFile(fileName) {
-            let cleanName = fileName.trim();
-            if (!cleanName) return;
-            cleanName = cleanName.replace('.java', '');
-            cleanName = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
-            const fullFileName = cleanName + '.java';
+        // Java Sözdizimi Renklendirici Motor (Regex Tabanlı)
+        function applySyntaxHighlighting(text) {
+            if (!text) return '';
+            
+            // 1. HTML Karakterlerini Kaçır (Güvenlik ve DOM kırılmasını önlemek için)
+            let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            
+            // 2. Yorum Satırları (Öncelikli işlenir ki içindeki kodlar boyanmasın)
+            safeText = safeText.replace(/(\/\/.*)/g, '<span class="sh-comment">$1</span>');
+            safeText = safeText.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="sh-comment">$1</span>');
+            
+            // 3. Stringler (Tırnak içi) - Geçici token ile koru ki içindeki anahtar kelimeler boyanmasın
+            safeText = safeText.replace(/(&quot;.*?&quot;)/g, '<span class="sh-string">$1</span>');
+            safeText = safeText.replace(/('.*?')/g, '<span class="sh-string">$1</span>');
 
-            if (files.some(f => f.name.toLowerCase() === fullFileName.toLowerCase())) {
-                alert('Bu isimde bir Java dosyası zaten var!');
+            // 4. Sınıf İsimleri (Büyük harfle başlayan kelimeler, genellikle class isimleri)
+            safeText = safeText.replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span class="sh-class">$1</span>');
+
+            // 5. Anahtar Kelimeler (Keywords)
+            const keywords = ['public', 'private', 'protected', 'class', 'static', 'void', 'int', 'double', 'float', 'boolean', 'char', 'String', 'new', 'return', 'if', 'else', 'for', 'while', 'do', 'try', 'catch', 'finally', 'throw', 'throws', 'import', 'package', 'extends', 'implements', 'this', 'super', 'true', 'false', 'null'];
+            const keywordRegex = new RegExp(`\\b(${keywords.join('|')})\\b`, 'g');
+            safeText = safeText.replace(keywordRegex, '<span class="sh-keyword">$1</span>');
+
+            // 6. Metotlar (Fonksiyon çağrıları)
+            safeText = safeText.replace(/\b([a-z][a-zA-Z0-9_]*)\s*(?=\()/g, '<span class="sh-method">$1</span>');
+
+            // 7. Sayılar
+            safeText = safeText.replace(/\b(\d+)\b/g, '<span class="sh-number">$1</span>');
+
+            return safeText;
+        }
+
+        // 6. DOSYA YÖNETİMİ (Ekleme / Silme)
+        function openNewFileModal() {
+            DOM.newFileModal.classList.add('active');
+            DOM.newFileNameInput.value = '';
+            setTimeout(() => DOM.newFileNameInput.focus(), 100);
+        }
+
+        function closeNewFileModal() {
+            DOM.newFileModal.classList.remove('active');
+        }
+
+        function createNewFile() {
+            let rawName = DOM.newFileNameInput.value.trim();
+            if (!rawName) {
+                showToast('Lütfen geçerli bir sınıf adı girin.', 'error');
+                return;
+            }
+
+            // Temizleme ve Formatlama (Sadece harf, rakam. İlk harf büyük)
+            rawName = rawName.replace(/[^a-zA-Z0-9_]/g, '');
+            if (!rawName) {
+                showToast('Geçersiz karakterler kullandınız.', 'error');
+                return;
+            }
+            rawName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+            const fileName = rawName + '.java';
+
+            // Aynı isimde dosya var mı kontrolü
+            if (State.files.some(f => f.name.toLowerCase() === fileName.toLowerCase())) {
+                showToast(`'${fileName}' adında bir dosya zaten mevcut!`, 'error');
                 return;
             }
 
             const newFile = {
-                id: Date.now().toString(),
-                name: fullFileName,
-                content: `public class ${cleanName} {\n\n}`
+                id: 'f_' + Date.now(),
+                name: fileName,
+                content: `public class ${rawName} {\n    \n    public ${rawName}() {\n        // Kurucu metot\n    }\n    \n}`
             };
 
-            files.push(newFile);
+            State.files.push(newFile);
+            closeNewFileModal();
+            showToast(`Sınıf oluşturuldu: ${fileName}`, 'success');
+            
+            // Tüm listeleri render et ve yeni dosyaya geç
+            renderSidebar();
+            renderTabs();
             switchActiveFile(newFile.id);
-            closeModal();
         }
 
         function deleteFile(event, id) {
-            event.stopPropagation();
-            if (files.length <= 1) return;
-
-            files = files.filter(f => f.id !== id);
-            if (activeFileId === id) activeFileId = files[0].id;
-            renderSidebarFiles();
-            renderTabs();
-            loadActiveFileContent();
-            updateLineNumbers();
-        }
-
-        async function compileCode() {
-            saveCurrentEditorContent();
-
-            compileBtn.disabled = true;
-            compileBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Derleniyor...</span>`;
-            compilerStatus.innerText = 'Derleniyor... ☕';
-            compilerStatus.style.color = 'var(--accent-coffee)';
-
-            logConsole('info', '[CodeStudio] Derleme işlemi başlatıldı...');
-
-            try {
-                const response = await fetch('/api/compile', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        files: files.map(f => ({ fileName: f.name, content: f.content }))
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    logConsole('success', `[BAŞARILI] ${data.message}`);
-                    renderCompiledFiles(data.compiledFiles);
-                    compilerStatus.innerText = 'Derleme Başarılı! ✅';
-                    compilerStatus.style.color = 'var(--status-success)';
-                } else {
-                    logConsole('error', `[DERLEME HATASI]\n${data.error}`);
-                    compilerStatus.innerText = 'Derleme Hatası! ❌';
-                    compilerStatus.style.color = 'var(--status-error)';
-                }
-
-            } catch (err) {
-                logConsole('error', `[BAĞLANTI HATASI] ${err.message}`);
-                compilerStatus.innerText = 'Bağlantı Hatası!';
-                compilerStatus.style.color = 'var(--status-error)';
-            } finally {
-                compileBtn.disabled = false;
-                compileBtn.innerHTML = `<i class="fa-solid fa-play"></i> <span>Kodu Derle</span>`;
+            event.stopPropagation(); // Parent tıklamasını engelle
+            if (State.files.length <= 1) {
+                showToast('Son dosyayı silemezsiniz!', 'error');
+                return;
             }
+
+            const fileToDelete = State.files.find(f => f.id === id);
+            
+            // Çıkış animasyonu için class ekle
+            const sideItem = document.getElementById(`sidebar_item_${id}`);
+            if(sideItem) sideItem.classList.add('removing');
+
+            // Animasyon süresi (300ms) kadar bekleyip DOM'dan ve State'den sil
+            setTimeout(() => {
+                State.files = State.files.filter(f => f.id !== id);
+                
+                // Eğer silinen dosya aktif olansa, dizideki ilk dosyaya geç
+                if (State.activeFileId === id) {
+                    State.activeFileId = State.files[0].id;
+                    loadActiveFile();
+                }
+                
+                renderSidebar();
+                renderTabs();
+                showToast(`${fileToDelete.name} silindi.`, 'success');
+            }, 300);
         }
 
-        function renderCompiledFiles(compiledFiles) {
-            if (!compiledFiles || compiledFiles.length === 0) return;
+        // 7. DERLEME MOTORU SİMÜLASYONU (Mock Compiler)
+        async function compileProject() {
+            if (State.isCompiling) return;
+            
+            saveCurrentFile();
+            State.isCompiling = true;
 
-            compiledList.innerHTML = '';
-            compiledFiles.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'compiled-item';
-                card.innerHTML = `
+            // UI Durumu: Derleniyor
+            DOM.compileBtn.disabled = true;
+            DOM.compileBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Derleniyor...</span>`;
+            
+            DOM.compilerStatus.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> İşleniyor`;
+            DOM.compilerStatus.style.color = 'var(--accent-coffee)';
+            DOM.compilerStatus.style.background = 'rgba(212, 155, 84, 0.1)';
+
+            logConsole('warn', `\n> javac *.java çalıştırılıyor...`);
+
+            // Gerçekçi bir gecikme simülasyonu (Ağ isteği yapılmış gibi)
+            await new Promise(r => setTimeout(r, 800));
+
+            // Sözde Derleme Mantığı: Kod içinde "System.out.println" yoksa uyarı verelim (Eğlence amaçlı)
+            const hasMain = State.files.some(f => f.content.includes('public static void main'));
+            let success = true;
+            let errorMsg = '';
+
+            if (!hasMain) {
+                success = false;
+                errorMsg = "HATA: Projede 'public static void main(String[] args)' metoduna sahip bir ana sınıf bulunamadı. Çalıştırılamaz.";
+            }
+
+            // Sözde ağ gecikmesi devamı
+            await new Promise(r => setTimeout(r, 1200));
+
+            if (success) {
+                // Başarılı Senaryo
+                logConsole('success', `[BAŞARILI] Derleme tamamlandı. ${State.files.length} kaynak dosya işlendi.`);
+                
+                // Çıktı Dosyalarını (.class) oluştur ve göster
+                const compiledFiles = State.files.map(f => ({
+                    className: f.name.replace('.java', '.class'),
+                    downloadUrl: '#' // Mock link
+                }));
+                renderCompiledList(compiledFiles);
+
+                DOM.compilerStatus.innerHTML = `<i class="fa-solid fa-check-double"></i> Başarılı`;
+                DOM.compilerStatus.style.color = 'var(--status-success)';
+                DOM.compilerStatus.style.background = 'var(--status-success-bg)';
+                showToast('Proje başarıyla derlendi!', 'success');
+
+                // Sözde Çalıştırma (Program Çıktısı)
+                logConsole('warn', `> java Main çalıştırılıyor...\n--- PROGRAM ÇIKTISI ---`);
+                await new Promise(r => setTimeout(r, 500));
+                logConsole('info', "CodeStudio Pro'ya Hoş Geldiniz! 🚀");
+                await new Promise(r => setTimeout(r, 300));
+                logConsole('info', "Taze Espresso hazırlanıyor...");
+
+            } else {
+                // Hatalı Senaryo
+                logConsole('error', `[DERLEME HATASI] ${errorMsg}`);
+                
+                DOM.compilerStatus.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Hata`;
+                DOM.compilerStatus.style.color = 'var(--status-error)';
+                DOM.compilerStatus.style.background = 'var(--status-error-bg)';
+                showToast('Derleme hatası! Konsolu inceleyin.', 'error');
+            }
+
+            // Durumu Sıfırla
+            State.isCompiling = false;
+            DOM.compileBtn.disabled = false;
+            DOM.compileBtn.innerHTML = `<i class="fa-solid fa-play"></i> <span>Kodu Derle</span>`;
+        }
+
+        function renderCompiledList(files) {
+            DOM.compiledList.innerHTML = '';
+            
+            files.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'compiled-item';
+                // Sıralı animasyon gecikmesi
+                item.style.animationDelay = `${index * 0.1}s`; 
+                
+                item.innerHTML = `
                     <div class="compiled-item-info">
-                        <i class="fa-solid fa-file-zipper"></i>
+                        <i class="fa-solid fa-file-code"></i>
                         <div>
-                            <div class="compiled-name">${item.className}</div>
-                            <div class="compiled-sub">Java Bytecode</div>
+                            <div class="compiled-name">${file.className}</div>
+                            <div class="compiled-sub">Java Bytecode (JVM)</div>
                         </div>
                     </div>
-                    <a href="${item.downloadUrl}" class="btn-download" download>
+                    <a href="javascript:void(0)" class="btn-download" onclick="showToast('.class dosyası indirme simüle edildi.', 'success')">
                         <i class="fa-solid fa-download"></i> İndir
                     </a>
                 `;
-                compiledList.appendChild(card);
+                DOM.compiledList.appendChild(item);
             });
         }
 
-        function logConsole(type, message) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `console-msg ${type}`;
-            msgDiv.innerText = message;
-            consoleOutput.appendChild(msgDiv);
-            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        // 8. YARDIMCI BİLEŞENLER (Konsol ve Toast)
+        function logConsole(type, text) {
+            const msg = document.createElement('div');
+            msg.className = `console-msg ${type}`;
+            
+            const time = new Date().toLocaleTimeString('tr-TR', { hour12: false });
+            
+            // Eğer metin birden fazla satırsa pre kullanarak formatı koru
+            if (text.includes('\n')) {
+                msg.innerHTML = `<span class="timestamp">[${time}]</span><br><pre style="font-family:inherit; margin-top:4px;">${text}</pre>`;
+            } else {
+                msg.innerHTML = `<span class="timestamp">[${time}]</span>${text}`;
+            }
+            
+            DOM.consoleOutput.appendChild(msg);
+            // Yumuşak kaydırma
+            DOM.consoleOutput.scrollTo({
+                top: DOM.consoleOutput.scrollHeight,
+                behavior: 'smooth'
+            });
         }
 
-        function openModal() {
-            newFileModal.classList.add('active');
-            newFileNameInput.value = '';
-            newFileNameInput.focus();
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-circle-xmark' : 'fa-info-circle';
+            
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+            DOM.toastContainer.appendChild(toast);
+            
+            // 3 saniye sonra animasyon bitince DOM'dan temizle
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
         }
 
-        function closeModal() { newFileModal.classList.remove('active'); }
-
+        // 9. OLAY DİNLEYİCİLERİ (EVENT LISTENERS)
         function setupEventListeners() {
-            codeEditor.addEventListener('input', () => {
-                updateLineNumbers();
-                saveCurrentEditorContent();
+            // Editör Yazım ve Scroll Senkronizasyonu
+            DOM.codeEditor.addEventListener('input', () => {
+                updateEditorUI();
             });
 
-            codeEditor.addEventListener('scroll', () => {
-                lineNumbers.scrollTop = codeEditor.scrollTop;
+            // Container kaydırıldığında, satır numaralarını da kaydır (Kusursuz eşleşme)
+            DOM.codeWrapper.addEventListener('scroll', () => {
+                DOM.lineNumbers.style.top = `-${DOM.codeWrapper.scrollTop}px`;
             });
 
-            codeEditor.addEventListener('keydown', (e) => {
+            // Gelişmiş Editör Kısayolları (Tab ve Otomatik Kapatma)
+            DOM.codeEditor.addEventListener('keydown', function(e) {
+                // Tab Tuşu (4 boşluk ekle)
                 if (e.key === 'Tab') {
                     e.preventDefault();
-                    const start = codeEditor.selectionStart;
-                    const end = codeEditor.selectionEnd;
-                    codeEditor.value = codeEditor.value.substring(0, start) + "    " + codeEditor.value.substring(end);
-                    codeEditor.selectionStart = codeEditor.selectionEnd = start + 4;
-                    updateLineNumbers();
-                    saveCurrentEditorContent();
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    const val = this.value;
+                    
+                    this.value = val.substring(0, start) + "    " + val.substring(end);
+                    this.selectionStart = this.selectionEnd = start + 4;
+                    updateEditorUI();
+                }
+                
+                // Süslü Parantez Otomatik Kapatma ve Satır Atlatma
+                if (e.key === '{') {
+                    e.preventDefault();
+                    const start = this.selectionStart;
+                    const val = this.value;
+                    
+                    this.value = val.substring(0, start) + "{}" + val.substring(start);
+                    this.selectionStart = this.selectionEnd = start + 1;
+                    updateEditorUI();
+                }
+
+                if (e.key === 'Enter') {
+                    // Temel Auto-indentation (Önceki satırın boşluğunu al)
+                    const start = this.selectionStart;
+                    const val = this.value;
+                    const lines = val.substring(0, start).split('\n');
+                    const lastLine = lines[lines.length - 1];
+                    const indent = lastLine.match(/^\s*/)[0];
+
+                    // Eğer önceki karakter '{' ise ekstra indent ekle
+                    if (val.charAt(start - 1) === '{') {
+                        e.preventDefault();
+                        const nextIndent = indent + "    ";
+                        this.value = val.substring(0, start) + "\n" + nextIndent + "\n" + indent + val.substring(start);
+                        this.selectionStart = this.selectionEnd = start + nextIndent.length + 1;
+                        updateEditorUI();
+                    } else {
+                        e.preventDefault();
+                        this.value = val.substring(0, start) + "\n" + indent + val.substring(start);
+                        this.selectionStart = this.selectionEnd = start + indent.length + 1;
+                        updateEditorUI();
+                    }
                 }
             });
 
-            compileBtn.addEventListener('click', compileCode);
-            addFileBtn.addEventListener('click', openModal);
-            cancelModalBtn.addEventListener('click', closeModal);
-            confirmModalBtn.addEventListener('click', () => addNewFile(newFileNameInput.value));
-            newFileNameInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') addNewFile(newFileNameInput.value);
+            // Buton Dinleyicileri
+            DOM.addFileBtn.addEventListener('click', openNewFileModal);
+            DOM.cancelModalBtn.addEventListener('click', closeNewFileModal);
+            DOM.confirmModalBtn.addEventListener('click', createNewFile);
+            DOM.compileBtn.addEventListener('click', compileProject);
+
+            // Modal İçi Enter Kısayolu
+            DOM.newFileNameInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') createNewFile();
+                if (e.key === 'Escape') closeNewFileModal();
+            });
+
+            // Genel Kısayollar
+            window.addEventListener('keydown', (e) => {
+                // Ctrl+Enter -> Derle
+                if (e.ctrlKey && e.key === 'Enter') {
+                    e.preventDefault();
+                    compileProject();
+                }
+                // Alt+N -> Yeni Dosya
+                if (e.altKey && e.code === 'KeyN') {
+                    e.preventDefault();
+                    openNewFileModal();
+                }
+            });
+
+            // Pencere Boyutu Değiştiğinde UI'ı Düzelt
+            window.addEventListener('resize', () => {
+                updateEditorUI();
             });
         }
 
-        init();
+        // UYGULAMAYI BAŞLAT
+        window.addEventListener('DOMContentLoaded', initApp);
+
     </script>
 </body>
 </html>
