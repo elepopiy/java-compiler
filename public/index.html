@@ -391,7 +391,22 @@
         .line-numbers-container { width: 50px; min-width: 50px; background-color: color-mix(in srgb, var(--panel-bg) 85%, transparent); border-right: 1px solid var(--border-color); overflow: hidden; position: relative; z-index: 2; }
         .line-numbers { position: absolute; top: 0; left: 0; right: 0; padding: 16px 0; font-family: var(--font-code); font-size: 14px; line-height: 1.6; color: var(--text-muted); text-align: right; padding-right: 14px; user-select: none; }
 
-        .code-area-wrapper { flex: 1; position: relative; overflow: auto; background: color-mix(in srgb, var(--editor-bg) 88%, transparent); }
+        .code-area-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: auto;
+            /* Şeffaflık sızıntısını ve renk kırpılmasını önlemek için arka planı sabitledik */
+            background: var(--editor-bg);
+        }
+
+        /* Sağa kaydığında yazının ve renklerin görünmez kalmasını engelleyen ek yapı */
+        .code-area-wrapper .code-highlight,
+        .code-area-wrapper .code-input {
+            min-width: 100%;
+            width: max-content; /* Sağa uzayan satırlarda katmanın kesilmesini engeller */
+            min-height: 100%;
+            box-sizing: border-box;
+        }
 
         /* YENİ VE DÜZELTİLMİŞ CSS */
         .code-highlight, .code-input {
@@ -408,9 +423,13 @@
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
+    
+            /* YATAY KAYMA / GÖRÜNMEZLİK ÇÖZÜMÜ: */
+            min-width: 100% !important;
+            width: max-content !important; /* İçerik uzadıkça sağa doğru genişler */
+            min-height: 100% !important;
             box-sizing: border-box !important;
+    
             letter-spacing: normal !important;
             word-spacing: normal !important;
             font-variant-ligatures: none !important;
