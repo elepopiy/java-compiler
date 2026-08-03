@@ -394,9 +394,26 @@
         .code-area-wrapper { flex: 1; position: relative; overflow: auto; background: color-mix(in srgb, var(--editor-bg) 88%, transparent); }
 
         .code-highlight, .code-input {
-            margin: 0; padding: 16px; font-family: var(--font-code); font-size: 14px; line-height: 1.6; tab-size: 4;
-            white-space: pre; word-wrap: normal; border: none; outline: none; position: absolute; top: 0; left: 0;
-            min-width: 100%; min-height: 100%;
+            margin: 0;
+            padding: 16px;
+            font-family: var(--font-code);
+            font-size: 14px;
+            line-height: 1.6;
+            tab-size: 4;
+            white-space: pre;
+            word-wrap: normal;
+            border: 0;
+            outline: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            /* Font rendering eşitliği */
+            font-variant-ligatures: none;
+            letter-spacing: 0px;
+            word-spacing: 0px;
         }
         .code-highlight { color: var(--text-primary); pointer-events: none; z-index: 0; }
         .code-input { color: transparent; background: transparent; caret-color: var(--accent); z-index: 1; resize: none; overflow: hidden; }
@@ -996,30 +1013,36 @@
         if (!text) return '';
         const cfg = LANGS[lang];
 
-        let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        // 1. Önce HTML Karakterlerini Güvenli Hale Getir
+        let safeText = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
 
-        safeText = safeText.replace(/(\/\/.*)/g, '<span class="sh-comment">$1</span>');
+        // 2. Yorum Satırları (Önce yorumlar işlenmeli ki içindeki kelimeler renklenmesin)
+        safeText = safeText.replace(/(\/\/[^\n]*)/g, '<span class="sh-comment">$1</span>');
         safeText = safeText.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="sh-comment">$1</span>');
 
-        safeText = safeText.replace(/(&quot;.*?&quot;)/g, '<span class="sh-string">$1</span>');
-        safeText = safeText.replace(/('.*?')/g, '<span class="sh-string">$1</span>');
+        // 3. Metin İfadeleri (String)
+        safeText = safeText.replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="sh-string">$1</span>');
 
-        if (lang === 'java') {
-            safeText = safeText.replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span class="sh-class">$1</span>');
-        } else {
+        // 4. C/C++ Preprocessor (#include, #define vb.)
+        if (lang !== 'java') {
             safeText = safeText.replace(/^(\s*#\s*\w+.*)$/gm, '<span class="sh-preproc">$1</span>');
-            if (lang === 'cpp') {
-                safeText = safeText.replace(/\b(std)(::)/g, '<span class="sh-class">$1</span>$2');
-                safeText = safeText.replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span class="sh-class">$1</span>');
-            }
         }
 
+        // 5. Anahtar Kelimeler (Keywords)
         const keywordRegex = new RegExp(`\\b(${cfg.keywords.join('|')})\\b`, 'g');
         safeText = safeText.replace(keywordRegex, '<span class="sh-keyword">$1</span>');
 
-        safeText = safeText.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span class="sh-method">$1</span>');
-
+        // 6. Sayılar
         safeText = safeText.replace(/\b(\d+)\b/g, '<span class="sh-number">$1</span>');
+
+        // 7. Sınıflar ve Metodlar
+        if (lang === 'java' || lang === 'cpp') {
+            safeText = safeText.replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span class="sh-class">$1</span>');
+        }
+        safeText = safeText.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span class="sh-method">$1</span>');
 
         return safeText;
     }
