@@ -711,7 +711,7 @@
                 name: f.name,
                 content: f.content
             }));
-            state[key] = { files, activeFileId: files[0].id, isCompiling: false };
+            state[key] = { files, activeFileId: files[0].id, isCompiling: false, lastBuild: null };
         });
         return state;
     }
@@ -836,7 +836,7 @@
             btn.classList.toggle('active', btn.dataset.lang === lang);
         });
 
-        DOM.compiledList.innerHTML = `<div class="empty-state"><i class="fa-solid fa-box-open"></i><p>${cfg.emptyBuildText}</p></div>`;
+        renderCompiledPanel();
         DOM.compilerStatus.innerHTML = `<i class="fa-solid fa-check-circle"></i> Hazır`;
         DOM.compilerStatus.style.color = 'var(--accent)';
         DOM.compilerStatus.style.background = 'var(--accent-glow)';
@@ -917,7 +917,7 @@
     }
 
     // ---------------------------------------------------------------------
-    // 7. EDİTÖR İŞLEMLERİ (Kusursuz Kaydırma + Bug-Free Yazım)
+    // 7. EDİTÖR İŞLEMLERİ
     // ---------------------------------------------------------------------
     function switchActiveFile(id) {
         const st = curState();
@@ -974,26 +974,21 @@
         DOM.lineNumbers.innerHTML = linesHtml;
     }
 
-    // Sözdizimi Renklendirici Motor (Regex Tabanlı, dile göre değişken kural seti)
     function applySyntaxHighlighting(text, lang) {
         if (!text) return '';
         const cfg = LANGS[lang];
 
         let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-        // Yorumlar
         safeText = safeText.replace(/(\/\/.*)/g, '<span class="sh-comment">$1</span>');
         safeText = safeText.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="sh-comment">$1</span>');
 
-        // Stringler
         safeText = safeText.replace(/(&quot;.*?&quot;)/g, '<span class="sh-string">$1</span>');
         safeText = safeText.replace(/('.*?')/g, '<span class="sh-string">$1</span>');
 
         if (lang === 'java') {
-            // Sınıf isimleri (büyük harfle başlayan kelimeler)
             safeText = safeText.replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span class="sh-class">$1</span>');
         } else {
-            // C / C++: Önişlemci direktifleri (#include, #define...)
             safeText = safeText.replace(/^(\s*#\s*\w+.*)$/gm, '<span class="sh-preproc">$1</span>');
             if (lang === 'cpp') {
                 safeText = safeText.replace(/\b(std)(::)/g, '<span class="sh-class">$1</span>$2');
@@ -1004,17 +999,15 @@
         const keywordRegex = new RegExp(`\\b(${cfg.keywords.join('|')})\\b`, 'g');
         safeText = safeText.replace(keywordRegex, '<span class="sh-keyword">$1</span>');
 
-        // Metot / fonksiyon çağrıları
         safeText = safeText.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span class="sh-method">$1</span>');
 
-        // Sayılar
         safeText = safeText.replace(/\b(\d+)\b/g, '<span class="sh-number">$1</span>');
 
         return safeText;
     }
 
     // ---------------------------------------------------------------------
-    // 8. DOSYA YÖNETİMİ (Ekleme / Silme) — dile göre şablon ve isimlendirme
+    // 8. DOSYA YÖNETİMİ
     // ---------------------------------------------------------------------
     function openNewFileModal() {
         const cfg = curCfg();
@@ -1096,7 +1089,10 @@
     }
 
     // ---------------------------------------------------------------------
-    // 9. DERLEME MOTORU SİMÜLASYONU (Java / C / C++)
+    // 9. DERLEME MOTORU — GERÇEK BACKEND API ÇAĞRILARI
+    //    Artık setTimeout ile SAHTE derleme yapmıyor. index.js içindeki
+    //    /api/compile, /api/run ve /api/download uçlarını gerçekten
+    //    çağırıyor. "İndir" butonu artık gerçek dosya indiriyor.
     // ---------------------------------------------------------------------
     async function compileProject() {
         const st = curState();
@@ -1115,47 +1111,50 @@
 
         logConsole('warn', `\n> ${cfg.compileCmd} çalıştırılıyor...`);
 
-        await new Promise(r => setTimeout(r, 800));
+        try {
+            const response = await fetch('/api/compile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    language: currentLang,
+                    files: st.files.map(f => ({ fileName: f.name, content: f.content }))
+                })
+            });
 
-        const hasMain = st.files.some(f => cfg.mainRegex.test(f.content));
-        let success = true;
-        let errorMsg = '';
-
-        if (!hasMain) {
-            success = false;
-            errorMsg = cfg.mainErr;
-        }
-
-        await new Promise(r => setTimeout(r, 1200));
-
-        if (success) {
-            logConsole('success', `[BAŞARILI] Derleme tamamlandı. ${st.files.length} kaynak dosya işlendi.`);
-
-            let compiledFiles;
-            if (cfg.outputType === 'multi') {
-                compiledFiles = st.files.map(f => ({
-                    className: f.name.replace(cfg.ext, cfg.outputExt),
-                    downloadUrl: '#'
-                }));
-            } else {
-                compiledFiles = [{ className: 'app', downloadUrl: '#' }];
+            let data;
+            try {
+                data = await response.json();
+            } catch (parseErr) {
+                throw new Error(`Sunucudan geçersiz yanıt geldi (HTTP ${response.status}). Backend çalışıyor mu?`);
             }
-            renderCompiledList(compiledFiles, cfg.outputSub);
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || `HTTP ${response.status}`);
+            }
+
+            logConsole('success', `[BAŞARILI] ${data.message || 'Derleme tamamlandı.'}`);
+
+            st.lastBuild = {
+                sessionId: data.sessionId,
+                language: data.language,
+                entryPoint: data.entryPoint,
+                canRun: data.canRun,
+                compiledFiles: data.compiledFiles
+            };
+            renderCompiledPanel();
 
             DOM.compilerStatus.innerHTML = `<i class="fa-solid fa-check-double"></i> Başarılı`;
             DOM.compilerStatus.style.color = 'var(--status-success)';
             DOM.compilerStatus.style.background = 'var(--status-success-bg)';
             showToast('Proje başarıyla derlendi!', 'success');
 
-            const runCmd = currentLang === 'java' ? 'java Main' : './app';
-            logConsole('warn', `> ${runCmd} çalıştırılıyor...\n--- PROGRAM ÇIKTISI ---`);
-            await new Promise(r => setTimeout(r, 500));
-            logConsole('info', `${cfg.brandTitle}'a Hoş Geldiniz! 🚀`);
-            await new Promise(r => setTimeout(r, 300));
-            logConsole('info', currentLang === 'java' ? 'Taze Espresso hazırlanıyor...' : 'Sistem başlatılıyor...');
-
-        } else {
-            logConsole('error', `[DERLEME HATASI] ${errorMsg}`);
+            if (data.canRun) {
+                await runCompiledProgram();
+            } else {
+                logConsole('warn', cfg.mainErr);
+            }
+        } catch (err) {
+            logConsole('error', `[DERLEME HATASI] ${err.message}`);
 
             DOM.compilerStatus.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Hata`;
             DOM.compilerStatus.style.color = 'var(--status-error)';
@@ -1168,10 +1167,50 @@
         DOM.compileBtn.innerHTML = `<i class="fa-solid fa-play"></i> <span>Kodu Derle</span>`;
     }
 
-    function renderCompiledList(files, subLabel) {
-        DOM.compiledList.innerHTML = '';
+    async function runCompiledProgram() {
+        const st = curState();
+        const build = st.lastBuild;
+        if (!build || !build.canRun) return;
 
-        files.forEach((file, index) => {
+        const runCmd = currentLang === 'java' ? `java ${build.entryPoint}` : './app';
+        logConsole('warn', `> ${runCmd} çalıştırılıyor...\n--- PROGRAM ÇIKTISI ---`);
+
+        try {
+            const response = await fetch('/api/run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sessionId: build.sessionId,
+                    language: build.language,
+                    entryPoint: build.entryPoint
+                })
+            });
+
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || `HTTP ${response.status}`);
+            }
+
+            if (data.stdout) logConsole('info', data.stdout.replace(/\n$/, ''));
+            if (data.stderr) logConsole('error', data.stderr.replace(/\n$/, ''));
+            logConsole('warn', `--- Çıkış kodu: ${data.exitCode} ---`);
+        } catch (err) {
+            logConsole('error', `[ÇALIŞTIRMA HATASI] ${err.message}`);
+        }
+    }
+
+    function renderCompiledPanel() {
+        const cfg = curCfg();
+        const st = curState();
+        const build = st.lastBuild;
+
+        if (!build || !build.compiledFiles || build.compiledFiles.length === 0) {
+            DOM.compiledList.innerHTML = `<div class="empty-state"><i class="fa-solid fa-box-open"></i><p>${cfg.emptyBuildText}</p></div>`;
+            return;
+        }
+
+        DOM.compiledList.innerHTML = '';
+        build.compiledFiles.forEach((file, index) => {
             const item = document.createElement('div');
             item.className = 'compiled-item';
             item.style.animationDelay = `${index * 0.1}s`;
@@ -1181,10 +1220,10 @@
                     <i class="fa-solid fa-file-code"></i>
                     <div>
                         <div class="compiled-name">${file.className}</div>
-                        <div class="compiled-sub">${subLabel}</div>
+                        <div class="compiled-sub">${cfg.outputSub}</div>
                     </div>
                 </div>
-                <a href="javascript:void(0)" class="btn-download" onclick="showToast('İndirme simüle edildi.', 'success')">
+                <a href="${file.downloadUrl}" class="btn-download" download="${file.className}">
                     <i class="fa-solid fa-download"></i> İndir
                 </a>
             `;
@@ -1193,7 +1232,7 @@
     }
 
     // ---------------------------------------------------------------------
-    // 10. YARDIMCI BİLEŞENLER (Konsol ve Toast)
+    // 10. YARDIMCI BİLEŞENLER
     // ---------------------------------------------------------------------
     function logConsole(type, text) {
         const msg = document.createElement('div');
@@ -1282,10 +1321,9 @@
         if (pos === undefined) return;
         DOM.codeEditor.focus();
         DOM.codeEditor.setSelectionRange(pos, pos + term.length);
-        // Textarea'yı seçime kaydır (satır yaklaşık yüksekliği üzerinden)
         const before = DOM.codeEditor.value.substring(0, pos);
         const lineIndex = before.split('\n').length - 1;
-        const lineHeight = 22.4; // 14px * 1.6 line-height
+        const lineHeight = 22.4;
         const targetTop = Math.max(0, lineIndex * lineHeight - DOM.codeWrapper.clientHeight / 2);
         DOM.codeWrapper.scrollTo({ top: targetTop, behavior: 'smooth' });
     }
@@ -1308,7 +1346,6 @@
         if (FindState.matches.length === 0 || FindState.index === -1) return;
         const replaceText = DOM.replaceInput.value;
         DOM.codeEditor.focus();
-        // Seçili eşleşme zaten setSelectionRange ile seçili; execCommand undo geçmişini korur
         document.execCommand('insertText', false, replaceText);
         updateEditorUI();
         saveCurrentFile();
@@ -1333,11 +1370,7 @@
     }
 
     // ---------------------------------------------------------------------
-    // 12. DÜZELTİLMİŞ EDİTÖR KISAYOLLARI ("yazarken saçmalama" BUG FIX)
-    //     Not: Doğrudan .value manipülasyonu yerine execCommand('insertText')
-    //     kullanılıyor. Böylece: (1) tarayıcının native Undo/Redo geçmişi
-    //     bozulmuyor, (2) hızlı yazımda imleç konumu kaymıyor, (3) parantez
-    //     kapatma çift karakter üretmiyor (skip-over mantığı eklendi).
+    // 12. DÜZELTİLMİŞ EDİTÖR KISAYOLLARI
     // ---------------------------------------------------------------------
     const PAIRS = { '{': '}', '(': ')', '[': ']', '"': '"', "'": "'" };
     const CLOSERS = new Set(Object.values(PAIRS));
@@ -1352,14 +1385,12 @@
         const end = el.selectionEnd;
         const val = el.value;
 
-        // TAB -> 4 boşluk
         if (e.key === 'Tab') {
             e.preventDefault();
             insertAtCursor('    ');
             return;
         }
 
-        // Açma karakterleri: seçili metin varsa sarmalar, yoksa çifti ekler
         if (PAIRS[e.key] && !e.ctrlKey && !e.metaKey) {
             e.preventDefault();
             if (start !== end) {
@@ -1374,14 +1405,12 @@
             return;
         }
 
-        // Kapama karakteri zaten bir sonraki karakterse üzerinden atla (çift karakter bugını önler)
         if (CLOSERS.has(e.key) && !e.ctrlKey && !e.metaKey && start === end && val.charAt(start) === e.key) {
             e.preventDefault();
             el.setSelectionRange(start + 1, start + 1);
             return;
         }
 
-        // Backspace: boş çift arasındaysa ikisini birden sil
         if (e.key === 'Backspace' && start === end && start > 0) {
             const prevChar = val.charAt(start - 1);
             const nextChar = val.charAt(start);
@@ -1394,7 +1423,6 @@
             }
         }
 
-        // Enter: önceki satırın girintisini koru, süslü parantez sonrası ekstra girinti ver
         if (e.key === 'Enter') {
             e.preventDefault();
             const lines = val.substring(0, start).split('\n');
@@ -1440,7 +1468,7 @@
     }
 
     // ---------------------------------------------------------------------
-    // 13. YILDIZ TARLASI (C ve C++ temalarında arka plan)
+    // 13. YILDIZ TARLASI
     // ---------------------------------------------------------------------
     let stars = [];
     let starCtx, starW, starH;
@@ -1537,7 +1565,6 @@
                 });
                 particles = particles.filter(p => p.life > 0);
 
-                // Yakın parçacıkları çizgiyle bağla (takım yıldızı efekti)
                 for (let i = 0; i < particles.length; i++) {
                     for (let j = i + 1; j < particles.length; j++) {
                         const a = particles[i], b = particles[j];
@@ -1570,7 +1597,7 @@
     }
 
     // ---------------------------------------------------------------------
-    // 15. OLAY DİNLEYİCİLERİ (EVENT LISTENERS)
+    // 15. OLAY DİNLEYİCİLERİ
     // ---------------------------------------------------------------------
     function setupEventListeners() {
         DOM.codeEditor.addEventListener('input', updateEditorUI);
@@ -1581,12 +1608,10 @@
 
         DOM.codeEditor.addEventListener('keydown', handleEditorKeydown);
 
-        // Dil Seçici
         DOM.langSwitcher.querySelectorAll('.lang-btn').forEach(btn => {
             btn.addEventListener('click', () => switchLanguage(btn.dataset.lang));
         });
 
-        // Buton Dinleyicileri
         DOM.addFileBtn.addEventListener('click', openNewFileModal);
         DOM.cancelModalBtn.addEventListener('click', closeNewFileModal);
         DOM.confirmModalBtn.addEventListener('click', createNewFile);
@@ -1597,7 +1622,6 @@
             if (e.key === 'Escape') closeNewFileModal();
         });
 
-        // Üst bar hızlı erişim butonları
         DOM.findToggleBtn.addEventListener('click', toggleFindBar);
         DOM.saveBtn.addEventListener('click', () => {
             saveCurrentFile();
@@ -1615,7 +1639,6 @@
             setTimeout(updateEditorUI, 0);
         });
 
-        // Bul / Değiştir Çubuğu
         DOM.findInput.addEventListener('input', runSearch);
         DOM.findInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') { e.preventDefault(); e.shiftKey ? findPrev() : findNext(); }
@@ -1632,7 +1655,6 @@
             DOM.findToggleReplaceBtn.textContent = showing ? '+ Değiştir seçeneğini göster' : '− Değiştir seçeneğini gizle';
         });
 
-        // Genel Kısayollar
         window.addEventListener('keydown', (e) => {
             if (e.ctrlKey && e.key === 'Enter') {
                 e.preventDefault();
@@ -1649,7 +1671,6 @@
 
         window.addEventListener('resize', () => updateEditorUI());
 
-        // Sayfadan ayrılmadan önce mevcut dosyayı ve durumu kaydet
         window.addEventListener('beforeunload', () => {
             saveCurrentFile();
             persistState();
