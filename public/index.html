@@ -393,27 +393,34 @@
 
         .code-area-wrapper { flex: 1; position: relative; overflow: auto; background: color-mix(in srgb, var(--editor-bg) 88%, transparent); }
 
+        /* YENİ VE DÜZELTİLMİŞ CSS */
         .code-highlight, .code-input {
-            margin: 0;
-            padding: 16px;
-            font-family: var(--font-code);
-            font-size: 14px;
-            line-height: 1.6;
-            tab-size: 4;
-            white-space: pre;
-            word-wrap: normal;
-            border: 0;
-            outline: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            box-sizing: border-box;
-            /* Font rendering eşitliği */
-            font-variant-ligatures: none;
-            letter-spacing: 0px;
-            word-spacing: 0px;
+            margin: 0 !important;
+            padding: 16px !important;
+            font-family: var(--font-code) !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+            tab-size: 4 !important;
+            white-space: pre !important;
+            word-wrap: normal !important;
+            border: 0 !important;
+            outline: none !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            box-sizing: border-box !important;
+            letter-spacing: normal !important;
+            word-spacing: normal !important;
+            font-variant-ligatures: none !important;
+        }
+
+        /* pre ve code etiketlerinin iç font boyutunun bozulmaması için */
+        .code-highlight code {
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
         }
         .code-highlight { color: var(--text-primary); pointer-events: none; z-index: 0; }
         .code-input { color: transparent; background: transparent; caret-color: var(--accent); z-index: 1; resize: none; overflow: hidden; }
@@ -1009,6 +1016,7 @@
         DOM.lineNumbers.innerHTML = linesHtml;
     }
 
+    // YENİ VE DÜZELTİLMİŞ KOD
     function applySyntaxHighlighting(text, lang) {
         if (!text) return '';
         const cfg = LANGS[lang];
@@ -1019,14 +1027,14 @@
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;');
 
-        // 2. Yorum Satırları (Önce işlenmeli ki içindeki kodlar renklenmesin)
+        // 2. Yorum Satırları (Önce işlenmeli)
         safeText = safeText.replace(/(\/\/[^\n]*)/g, '___COMMENT___$1___ENDCOMMENT___');
         safeText = safeText.replace(/(\/\*[\s\S]*?\*\/)/g, '___COMMENT___$1___ENDCOMMENT___');
 
-        // 3. String/Metin İfadeleri
+        // 3. String / Metin İfadeleri
         safeText = safeText.replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="sh-string">$1<\/span>');
 
-        // 4. Preprocessor (#include, #define) - Sadece C/C++ için
+        // 4. Preprocessor (#include, #define vb.)
         if (lang !== 'java') {
             safeText = safeText.replace(/^(\s*#\s*\w+.*)$/gm, '<span class="sh-preproc">$1<\/span>');
         }
@@ -1044,7 +1052,7 @@
         }
         safeText = safeText.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span class="sh-method">$1<\/span>');
 
-        // Yorum işaretleyicilerini gerçek HTML span'ine çevir
+        // Geçici yorum etiketlerini düzelt
         safeText = safeText
             .replace(/___COMMENT___/g, '<span class="sh-comment">')
             .replace(/___ENDCOMMENT___/g, '<\/span>');
